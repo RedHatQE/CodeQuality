@@ -1,0 +1,96 @@
+- job:
+    name: sonarqube_ruby-plugin_java_full_analysis
+
+    #######################################################
+    ############## SonarQube Parameters ###################
+    #######################################################
+
+    # sonarqube project parameters, set before build
+    parameters:
+      - string:
+          name: SONAR_KEY
+          default: sonarqube_ruby-plugin_java_full_analysis
+          description: "SonarQube unique project key"
+      - string:
+          name: SONAR_NAME
+          default: Ruby-Plugin Java Analysis
+          description: "SonarQube project name"
+      - string:
+          name: SONAR_PROJECT_VERSION
+          default: "1.0"
+          description: "SonarQube project version"
+
+    #######################################################
+    ############### Logging Aggregation ###################
+    #######################################################
+
+    # define how many days to kee build information
+    properties:
+      - build-discarder:
+          days-to-keep: 60
+          num-to-keep: 200
+          artifact-days-to-keep: 60
+          artifact-num-to-keep: 200
+
+    #######################################################
+    ################### Slave Image #######################
+    #######################################################
+
+    node: ssh_slave
+
+    #######################################################
+    ################ Git Trigger Config ###################
+    #######################################################
+
+    # git repo to follow, skip-tag to not require auth
+    scm:
+      - git:
+          url: https://github.com/shakedlokits/ruby-sonar-plugin.git
+          skip-tag: true
+
+    # git polling trigger set to once an hour
+    triggers:
+      - pollscm:
+          cron: "0 0 * * 0"
+          ignore-post-commit-hooks: True
+
+    #######################################################
+    ################### Build Steps #######################
+    #######################################################
+
+    builders:
+
+      # project deployment script goes here
+      - shell: |
+          dnf install -y maven java-1.8.0-openjdk-devel.x86_64
+
+      # coverage tests initialization script
+      - shell: |
+          mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent \
+            install -Dmaven.test.failure.ignore=true || true
+
+      # sonar runner parameters, set sources and baseDir to project home
+      # projectKey (string): SonarQube project identification key (unique)
+      # projectName (string): SonarQube project name (NOT unique)
+      # projectVersion (string): SonarQube project version (unique)
+      # sources (string): source code home directory
+      # projectBaseDir (string): project home directory (same as sources)
+      # language (string): project language(ruby)
+      # inclusions (string): file inclusion pattern
+      # exclusions (string): file exclusion pattern
+      # login (string): SonarQube server user name
+      # password (string): SonarQube server user password
+      - sonar:
+          sonar-name: slokits_test_env_stable
+          properties: |
+            sonar.projectKey=$SONAR_KEY
+            sonar.projectName=$SONAR_NAME
+            sonar.projectVersion=$SONAR_PROJECT_VERSION
+            sonar.sources=${WORKSPACE}
+            sonar.projectBaseDir=${WORKSPACE}
+            sonar.language=java
+            sonar.inclusions=**/*.java
+            sonar.exclusions=src/test/**/*.java
+            sonar.login=test
+            sonar.password=test
+            sonar.ws.timeout=180

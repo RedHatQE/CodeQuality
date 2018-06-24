@@ -1,0 +1,32 @@
+---
+sonar: db
+# RHEL/CentOS only. Set a repository to use for PostgreSQL installation.
+postgresql_enablerepo: "rhel-7-server-rpms"
+postgresql_version: 9.2
+postgresql_data_dir: /var/lib/pgsql/data
+postgresql_bin_path: /usr/bin
+postgresql_config_path: /var/lib/pgsql/data
+postgresql_daemon: postgresql.service
+postgresql_packages:
+  - postgresql
+  - postgresql-server
+  - postgresql-libs
+  - postgresql-contrib
+  - postgresql-devel
+postgresql_user: postgres
+postgresql_group: postgres
+
+# Global configuration options that will be set in postgresql.conf.
+postgresql_global_config_options:
+  - option: listen_addresses
+    value: '*'
+
+# Host based authentication (hba) entries to be added to the pg_hba.conf. This
+# variable's defaults reflect the defaults that come with a fresh installation.
+postgresql_hba_entries:
+  - { type: host, database: all, user: all, address: '0.0.0.0/0', auth_method: trust }
+  - { type: local, database: all, user: all, auth_method: trust }
+
+postgresql_users:
+  - name: sonar
+    password: sonar

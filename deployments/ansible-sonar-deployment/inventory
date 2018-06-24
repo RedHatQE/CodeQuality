@@ -1,0 +1,2 @@
+db ansible_host= ansible_ssh_user=root
+ui ansible_host= ansible_ssh_user=root

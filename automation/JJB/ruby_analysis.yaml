@@ -1,0 +1,129 @@
+- job:
+    name: sonarqube_foreman_ruby_full_analysis
+
+    #######################################################
+    ############## SonarQube Parameters ###################
+    #######################################################
+
+    # sonarqube project parameters, set before build
+    parameters:
+      - string:
+          name: SONAR_KEY
+          default: sonarqube_foreman_ruby_full_analysis
+          description: "SonarQube unique project key"
+      - string:
+          name: SONAR_NAME
+          default: Foreman Ruby Analysis
+          description: "SonarQube project name"
+      - string:
+          name: SONAR_PROJECT_VERSION
+          default: "1.0"
+          description: "SonarQube project version"
+
+    #######################################################
+    ############### Logging Aggregation ###################
+    #######################################################
+
+    # define how many days to kee build information
+    properties:
+      - build-discarder:
+          days-to-keep: 60
+          num-to-keep: 200
+          artifact-days-to-keep: 60
+          artifact-num-to-keep: 200
+
+    #######################################################
+    ################### Slave Image #######################
+    #######################################################
+
+    node: ssh_slave
+
+    #######################################################
+    ################ Git Trigger Config ###################
+    #######################################################
+
+    # git repo to follow, skip-tag to not require auth
+    scm:
+      - git:
+          url: https://github.com/theforeman/foreman/
+          skip-tag: true
+
+    # git polling trigger set to once an hour
+    triggers:
+      - pollscm:
+          cron: "0 0 * * 0"
+          ignore-post-commit-hooks: True
+
+    #######################################################
+    ################### Build Steps #######################
+    #######################################################
+
+    builders:
+
+      # project deployment script goes here
+      - shell: |
+          git clone https://github.com/shakedlokits/foreman-deployment.git
+          cd foreman-deployment
+          chmod +x ./install_foreman.sh
+          ./install_foreman.sh
+
+      # coverage tests initialization script
+      - shell: |
+          cd /usr/src/app
+          COVERAGE=on RAILS_ENV=test rake test || true
+
+      # static analysis initialization script
+      - shell: |
+          cd /usr/src/app
+          gem install metric_fu
+          metric_fu -r --no-flog --no-flay --no-roodi --no-open || true
+
+      # sonar runner parameters, set sources and baseDir to project home
+      # projectKey (string): SonarQube project identification key (unique)
+      # projectName (string): SonarQube project name (NOT unique)
+      # projectVersion (string): SonarQube project version (unique)
+      # sources (string): source code home directory
+      # projectBaseDir (string): project home directory (same as sources)
+      # language (string): project language(ruby)
+      # inclusions (string): file inclusion pattern
+      # exclusions (string): file exclusion pattern
+      # login (string): SonarQube server user name
+      # password (string): SonarQube server user password
+      - sonar:
+          sonar-name: slokits_test_env_stable
+          properties: |
+            sonar.projectKey=$SONAR_KEY
+            sonar.projectName=$SONAR_NAME
+            sonar.projectVersion=$SONAR_PROJECT_VERSION
+            sonar.sources=/usr/src/app
+            sonar.projectBaseDir=/usr/src/app
+            sonar.language=ruby
+            sonar.inclusions=**/*.rb
+            sonar.exclusions=test/**/*.rb,db/**/*.rb
+            sonar.login=test
+            sonar.password=test
+            sonar.ws.timeout=180
+
+    #######################################################
+    #################### Publishers #######################
+    #######################################################
+
+    publishers:
+
+      # fetch the metric_fu report for debugging
+      - html-publisher:
+          name: "metric_fu report"
+          dir: "/usr/src/app/tmp/metric_fu"
+          files: "report.yml"
+          keep-all: true
+          allow-missing: true
+          link-to-last-build: true
+
+      # fetch the simplecov report for debugging
+      - html-publisher:
+          name: "simplecov report"
+          dir: "/usr/src/app/coverage"
+          files: ".resultset.json"
+          keep-all: true
+          allow-missing: true
+          link-to-last-build: true

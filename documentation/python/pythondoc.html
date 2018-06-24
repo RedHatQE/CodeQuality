@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link href="data:text/css;charset=utf-8,body%20%7B%0Afont%2Dfamily%3A%20Helvetica%2C%20arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E6%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%2010px%3B%0Abackground%2Dcolor%3A%20white%3B%0Apadding%3A%2030px%3B%0Acolor%3A%20%23333%3B%0A%7D%0Abody%20%3E%20%2A%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%20%21important%3B%0A%7D%0Abody%20%3E%20%2A%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%20%21important%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%234183C4%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%2Eabsent%20%7B%0Acolor%3A%20%23cc0000%3B%0A%7D%0Aa%2Eanchor%20%7B%0Adisplay%3A%20block%3B%0Apadding%2Dleft%3A%2030px%3B%0Amargin%2Dleft%3A%20%2D30px%3B%0Acursor%3A%20pointer%3B%0Aposition%3A%20absolute%3B%0Atop%3A%200%3B%0Aleft%3A%200%3B%0Abottom%3A%200%3B%0A%7D%0Ah1%2C%20h2%2C%20h3%2C%20h4%2C%20h5%2C%20h6%20%7B%0Amargin%3A%2020px%200%2010px%3B%0Apadding%3A%200%3B%0Afont%2Dweight%3A%20bold%3B%0A%2Dwebkit%2Dfont%2Dsmoothing%3A%20antialiased%3B%0Acursor%3A%20text%3B%0Aposition%3A%20relative%3B%0A%7D%0Ah2%3Afirst%2Dchild%2C%20h1%3Afirst%2Dchild%2C%20h1%3Afirst%2Dchild%20%2B%20h2%2C%20h3%3Afirst%2Dchild%2C%20h4%3Afirst%2Dchild%2C%20h5%3Afirst%2Dchild%2C%20h6%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0Apadding%2Dtop%3A%200%3B%0A%7D%0Ah1%3Ahover%20a%2Eanchor%2C%20h2%3Ahover%20a%2Eanchor%2C%20h3%3Ahover%20a%2Eanchor%2C%20h4%3Ahover%20a%2Eanchor%2C%20h5%3Ahover%20a%2Eanchor%2C%20h6%3Ahover%20a%2Eanchor%20%7B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Ah1%20tt%2C%20h1%20code%20%7B%0Afont%2Dsize%3A%20inherit%3B%0A%7D%0Ah2%20tt%2C%20h2%20code%20%7B%0Afont%2Dsize%3A%20inherit%3B%0A%7D%0Ah3%20tt%2C%20h3%20code%20%7B%0Afont%2Dsize%3A%20inherit%3B%0A%7D%0Ah4%20tt%2C%20h4%20code%20%7B%0Afont%2Dsize%3A%20inherit%3B%0A%7D%0Ah5%20tt%2C%20h5%20code%20%7B%0Afont%2Dsize%3A%20inherit%3B%0A%7D%0Ah6%20tt%2C%20h6%20code%20%7B%0Afont%2Dsize%3A%20inherit%3B%0A%7D%0Ah1%20%7B%0Afont%2Dsize%3A%2028px%3B%0Acolor%3A%20black%3B%0A%7D%0Ah2%20%7B%0Afont%2Dsize%3A%2024px%3B%0Aborder%2Dbottom%3A%201px%20solid%20%23cccccc%3B%0Acolor%3A%20black%3B%0A%7D%0Ah3%20%7B%0Afont%2Dsize%3A%2018px%3B%0A%7D%0Ah4%20%7B%0Afont%2Dsize%3A%2016px%3B%0A%7D%0Ah5%20%7B%0Afont%2Dsize%3A%2014px%3B%0A%7D%0Ah6%20%7B%0Acolor%3A%20%23777777%3B%0Afont%2Dsize%3A%2014px%3B%0A%7D%0Ap%2C%20blockquote%2C%20ul%2C%20ol%2C%20dl%2C%20li%2C%20table%2C%20pre%20%7B%0Amargin%3A%2015px%200%3B%0A%7D%0Ahr%20%7B%0Abackground%3A%20transparent%20url%28data%3Atext%2Fhtml%3Bcharset%3Dutf%2D8%2C%29%20repeat%2Dx%200%200%3B%0Aborder%3A%200%20none%3B%0Acolor%3A%20%23cccccc%3B%0Aheight%3A%204px%3B%0Apadding%3A%200%3B%0A%7D%0Abody%20%3E%20h2%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0Apadding%2Dtop%3A%200%3B%0A%7D%0Abody%20%3E%20h1%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0Apadding%2Dtop%3A%200%3B%0A%7D%0Abody%20%3E%20h1%3Afirst%2Dchild%20%2B%20h2%20%7B%0Amargin%2Dtop%3A%200%3B%0Apadding%2Dtop%3A%200%3B%0A%7D%0Abody%20%3E%20h3%3Afirst%2Dchild%2C%20body%20%3E%20h4%3Afirst%2Dchild%2C%20body%20%3E%20h5%3Afirst%2Dchild%2C%20body%20%3E%20h6%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0Apadding%2Dtop%3A%200%3B%0A%7D%0Aa%3Afirst%2Dchild%20h1%2C%20a%3Afirst%2Dchild%20h2%2C%20a%3Afirst%2Dchild%20h3%2C%20a%3Afirst%2Dchild%20h4%2C%20a%3Afirst%2Dchild%20h5%2C%20a%3Afirst%2Dchild%20h6%20%7B%0Amargin%2Dtop%3A%200%3B%0Apadding%2Dtop%3A%200%3B%0A%7D%0Ah1%20p%2C%20h2%20p%2C%20h3%20p%2C%20h4%20p%2C%20h5%20p%2C%20h6%20p%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Ali%20p%2Efirst%20%7B%0Adisplay%3A%20inline%2Dblock%3B%0A%7D%0Aul%2C%20ol%20%7B%0Apadding%2Dleft%3A%2030px%3B%0A%7D%0Aul%20%3Afirst%2Dchild%2C%20ol%20%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20%3Alast%2Dchild%2C%20ol%20%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Adl%20%7B%0Apadding%3A%200%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dsize%3A%2014px%3B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dstyle%3A%20italic%3B%0Apadding%3A%200%3B%0Amargin%3A%2015px%200%205px%3B%0A%7D%0Adl%20dt%3Afirst%2Dchild%20%7B%0Apadding%3A%200%3B%0A%7D%0Adl%20dt%20%3E%20%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Adl%20dt%20%3E%20%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%3A%200%200%2015px%3B%0Apadding%3A%200%2015px%3B%0A%7D%0Adl%20dd%20%3E%20%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Adl%20dd%20%3E%20%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Ablockquote%20%7B%0Aborder%2Dleft%3A%204px%20solid%20%23dddddd%3B%0Apadding%3A%200%2015px%3B%0Acolor%3A%20%23777777%3B%0A%7D%0Ablockquote%20%3E%20%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Ablockquote%20%3E%20%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Atable%20%7B%0Apadding%3A%200%3B%0A%7D%0Atable%20tr%20%7B%0Aborder%2Dtop%3A%201px%20solid%20%23cccccc%3B%0Abackground%2Dcolor%3A%20white%3B%0Amargin%3A%200%3B%0Apadding%3A%200%3B%0A%7D%0Atable%20tr%3Anth%2Dchild%282n%29%20%7B%0Abackground%2Dcolor%3A%20%23f8f8f8%3B%0A%7D%0Atable%20tr%20th%20%7B%0Afont%2Dweight%3A%20bold%3B%0Aborder%3A%201px%20solid%20%23cccccc%3B%0Atext%2Dalign%3A%20left%3B%0Amargin%3A%200%3B%0Apadding%3A%206px%2013px%3B%0A%7D%0Atable%20tr%20td%20%7B%0Aborder%3A%201px%20solid%20%23cccccc%3B%0Atext%2Dalign%3A%20left%3B%0Amargin%3A%200%3B%0Apadding%3A%206px%2013px%3B%0A%7D%0Atable%20tr%20th%20%3Afirst%2Dchild%2C%20table%20tr%20td%20%3Afirst%2Dchild%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Atable%20tr%20th%20%3Alast%2Dchild%2C%20table%20tr%20td%20%3Alast%2Dchild%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Aimg%20%7B%0Amax%2Dwidth%3A%20100%25%3B%0A%7D%0Aspan%2Eframe%20%7B%0Adisplay%3A%20block%3B%0Aoverflow%3A%20hidden%3B%0A%7D%0Aspan%2Eframe%20%3E%20span%20%7B%0Aborder%3A%201px%20solid%20%23dddddd%3B%0Adisplay%3A%20block%3B%0Afloat%3A%20left%3B%0Aoverflow%3A%20hidden%3B%0Amargin%3A%2013px%200%200%3B%0Apadding%3A%207px%3B%0Awidth%3A%20auto%3B%0A%7D%0Aspan%2Eframe%20span%20img%20%7B%0Adisplay%3A%20block%3B%0Afloat%3A%20left%3B%0A%7D%0Aspan%2Eframe%20span%20span%20%7B%0Aclear%3A%20both%3B%0Acolor%3A%20%23333333%3B%0Adisplay%3A%20block%3B%0Apadding%3A%205px%200%200%3B%0A%7D%0Aspan%2Ealign%2Dcenter%20%7B%0Adisplay%3A%20block%3B%0Aoverflow%3A%20hidden%3B%0Aclear%3A%20both%3B%0A%7D%0Aspan%2Ealign%2Dcenter%20%3E%20span%20%7B%0Adisplay%3A%20block%3B%0Aoverflow%3A%20hidden%3B%0Amargin%3A%2013px%20auto%200%3B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aspan%2Ealign%2Dcenter%20span%20img%20%7B%0Amargin%3A%200%20auto%3B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aspan%2Ealign%2Dright%20%7B%0Adisplay%3A%20block%3B%0Aoverflow%3A%20hidden%3B%0Aclear%3A%20both%3B%0A%7D%0Aspan%2Ealign%2Dright%20%3E%20span%20%7B%0Adisplay%3A%20block%3B%0Aoverflow%3A%20hidden%3B%0Amargin%3A%2013px%200%200%3B%0Atext%2Dalign%3A%20right%3B%0A%7D%0Aspan%2Ealign%2Dright%20span%20img%20%7B%0Amargin%3A%200%3B%0Atext%2Dalign%3A%20right%3B%0A%7D%0Aspan%2Efloat%2Dleft%20%7B%0Adisplay%3A%20block%3B%0Amargin%2Dright%3A%2013px%3B%0Aoverflow%3A%20hidden%3B%0Afloat%3A%20left%3B%0A%7D%0Aspan%2Efloat%2Dleft%20span%20%7B%0Amargin%3A%2013px%200%200%3B%0A%7D%0Aspan%2Efloat%2Dright%20%7B%0Adisplay%3A%20block%3B%0Amargin%2Dleft%3A%2013px%3B%0Aoverflow%3A%20hidden%3B%0Afloat%3A%20right%3B%0A%7D%0Aspan%2Efloat%2Dright%20%3E%20span%20%7B%0Adisplay%3A%20block%3B%0Aoverflow%3A%20hidden%3B%0Amargin%3A%2013px%20auto%200%3B%0Atext%2Dalign%3A%20right%3B%0A%7D%0Acode%2C%20tt%20%7B%0Amargin%3A%200%202px%3B%0Apadding%3A%200%205px%3B%0Awhite%2Dspace%3A%20nowrap%3B%0Aborder%3A%201px%20solid%20%23eaeaea%3B%0Abackground%2Dcolor%3A%20%23f8f8f8%3B%0Aborder%2Dradius%3A%203px%3B%0A%7D%0Apre%20code%20%7B%0Amargin%3A%200%3B%0Apadding%3A%200%3B%0Awhite%2Dspace%3A%20pre%3B%0Aborder%3A%20none%3B%0Abackground%3A%20transparent%3B%0A%7D%0A%2Ehighlight%20pre%20%7B%0Abackground%2Dcolor%3A%20%23f8f8f8%3B%0Aborder%3A%201px%20solid%20%23cccccc%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%2019px%3B%0Aoverflow%3A%20auto%3B%0Apadding%3A%206px%2010px%3B%0Aborder%2Dradius%3A%203px%3B%0A%7D%0Apre%20%7B%0Abackground%2Dcolor%3A%20%23f8f8f8%3B%0Aborder%3A%201px%20solid%20%23cccccc%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%2019px%3B%0Aoverflow%3A%20auto%3B%0Apadding%3A%206px%2010px%3B%0Aborder%2Dradius%3A%203px%3B%0A%7D%0Apre%20code%2C%20pre%20tt%20%7B%0Abackground%2Dcolor%3A%20transparent%3B%0Aborder%3A%20none%3B%0A%7D" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<!-- # Python Code Quality Analysis -->
+<p>The following document goes through running code coverage for python,<br />
+automation with Jenkins and integration with SonarQube.</p>
+<hr />
+<h2 id="manual-coverage">Manual Coverage</h2>
+<h3 id="prerequisites">Prerequisites:</h3>
+<ul>
+<li>python 2.7+</li>
+<li>coverage.py</li>
+<li>unittest2 / nose</li>
+</ul>
+<h3 id="implementation-steps">Implementation Steps:</h3>
+<p>Let's assume you have the following 2 python files:</p>
+<ul>
+<li><p><strong>a.py</strong></p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> hello():
+  <span class="cf">return</span> <span class="st">&quot;Hello World&quot;</span>
+
+<span class="kw">def</span> world():
+  <span class="cf">return</span> hello() <span class="op">+</span> <span class="st">&quot;, It's me!&quot;</span></code></pre></div></li>
+<li><p><strong>main.py</strong></p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> unittest
+<span class="im">from</span> a <span class="im">import</span> world
+
+<span class="kw">class</span> TestA(unittest.TestCase):
+
+    <span class="kw">def</span> test_upper(<span class="va">self</span>):
+        <span class="va">self</span>.assertEqual(world(), <span class="st">&quot;Hello World, It's me!&quot;</span>)
+
+unittest.main()</code></pre></div></li>
+</ul>
+<p>In order to run coverage report on those files you need to follow the following steps:</p>
+<ol>
+<li><p>run the command <code>coverage run main.py</code>, if there will be an error it will be presented as such (assuming you use unittest or nose as your testing framework)</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">F
+<span class="op">======================================================================</span>
+FAIL: test_upper (__main__.TestA)
+<span class="op">----------------------------------------------------------------------</span>
+Traceback (most recent call last):
+  File <span class="st">&quot;main.py&quot;</span>, line <span class="dv">8</span>, <span class="op">in</span> test_upper
+    <span class="va">self</span>.assertEqual(world(), <span class="st">&quot;Hello World, It's me!&quot;</span>)
+<span class="pp">AssertionError</span>: <span class="st">&quot;Hello World, I'ts me!&quot;</span> <span class="op">!=</span> <span class="st">&quot;Hello World, It's me!&quot;</span>
+
+<span class="op">----------------------------------------------------------------------</span>
+Ran <span class="dv">1</span> test <span class="op">in</span> <span class="fl">0.</span>000s
+
+FAILED (failures<span class="op">=</span><span class="dv">1</span>)</code></pre></div>
+ <br />
+<em>where you can see the following indicators:</em>
+<ul>
+<li>F - for a failed test</li>
+<li>E - for an error occurring during a test</li>
+<li>dot(.) - for a successful test</li>
+</ul>
+<p><strong>Now that we've fixed the problem, you can see our tests running successfully!</strong></p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">.
+<span class="op">----------------------------------------------------------------------</span>
+Ran <span class="dv">1</span> test <span class="op">in</span> <span class="fl">0.</span>000s
+
+OK</code></pre></div>
+<blockquote>
+<p>⚔ Note: you can focus your coverage to specific parts of the source by using the --include and –source flags interchangeably.</p>
+</blockquote></li>
+<li><p>you can now run the command <code>coverage report</code> which would output the coverage data collected like so:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">  Name      Stmts   Miss  Cover
+  <span class="op">-----------------------------</span>
+  a.py          <span class="dv">4</span>      <span class="dv">0</span>   <span class="dv">100</span><span class="op">%</span>
+  main.py       <span class="dv">6</span>      <span class="dv">0</span>   <span class="dv">100</span><span class="op">%</span>
+  <span class="op">-----------------------------</span>
+  TOTAL        <span class="dv">10</span>      <span class="dv">0</span>   <span class="dv">100</span><span class="op">%</span></code></pre></div></li>
+<li><p>finally, you can export this report into an XML file by running the command <code>coverage xml</code>, creating the file <code>coverage.xml</code> in the current working directory.</p></li>
+</ol>
+</body>
+</html>

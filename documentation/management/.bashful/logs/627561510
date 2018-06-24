@@ -1,0 +1,4 @@
+2018/02/06 14:13:49 [1;39mTask full output: Aggregate Markdown[0m
+[91msed: no input files[0m
+[91mpandoc: chapters/00_intro.md chapters/01_project_structure.md chapters/02_quality_gates.md chapters/03_visualization.md chapters/04_aggregat[0m
+[91mion.md chapters/05_security.md: openFile: does not exist (No such file or directory)[0m

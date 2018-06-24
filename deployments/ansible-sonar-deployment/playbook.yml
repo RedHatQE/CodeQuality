@@ -1,0 +1,15 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+  - include_role:
+      name: geerlingguy.postgresql
+    when: sonar == "db"
+
+  - include_role:
+      name: "{{ item }}"
+    when: sonar == "ui"
+    with_items:
+    - geerlingguy.java
+    - sonar
