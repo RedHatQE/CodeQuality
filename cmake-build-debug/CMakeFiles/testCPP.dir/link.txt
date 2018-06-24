@@ -1,0 +1,1 @@
+/usr/bin/c++   -lcppunit -g   CMakeFiles/testCPP.dir/tests.cpp.o CMakeFiles/testCPP.dir/main.cpp.o  -o testCPP 
