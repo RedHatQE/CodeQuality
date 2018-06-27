@@ -63,6 +63,14 @@ Docker Daemon - v1.9.0, build 76d6bc9
 Sonar Server - v6.7 LTS [(Installation Instructions)](deployments)
 Sonar Scanner - v2.8
 
+## Contributing
+
+We are super happy to recieve more documentation and new tooling methods you are using to make this project as useful as we could so please read the [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us (:
+
+## License
+
+This project is licensed under the GPL v3[(hehe)](http://www.relatably.com/m/img/open-source-meme-generator/61456596.jpg) - see the [LICENSE.md](./LICENSE.md) file for more details
+
 ## Super Special Thanks
 I'd like to give million thanks to [Alex Braverman](https://github.com/abraverm) who've been with me this entire process and made this pain-stakingly long process bearable with amounts of dark humor this world is yet ready to recieve.
 I also wanna thank the fabulous [Jared Wilkerson](https://github.com/lyrch) who carried and is still carrying through with finishing some final touches on the visualization parts of this project and the awesome person he is in general.
