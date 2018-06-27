@@ -14,29 +14,25 @@ This document explores the following subjects:
 Table of Contents
 -----------------
 
-      * [Project Structure](chapters/01_project_structure.md#project-structure)
-         * [Project Unique Key](chapters/01_project_structure.md#project-unique-key)
-         * [Project Tagging](chapters/01_project_structure.md#project-tagging)
 
-      * [Quality Profiles and Gates](chapters/02_quality_gates.md#quality-profiles-and-gates)
-         * [Quality Profile](chapters/02_quality_gates.md#quality-profile)
-            * [Setting and Extending a Quality Profile](chapters/02_quality_gates.md#setting-and-extending-a-quality-profile)
-         * [Quality Gate](chapters/02_quality_gates.md#quality-gate)
-            * [Setting the Quality Gate](chapters/02_quality_gates.md#setting-the-quality-gate)
+<!-- TOC depthFrom:1 depthTo:4 withLinks:1 updateOnSave:1 orderedList:0 -->
+<!-- code_chunk_output -->
 
-      * [Visualization](chapters/03_visualization.md#visualization)
-         * [Treemap](chapters/03_visualization.md#treemap)
-         * [Activity](chapters/03_visualization.md#activity)
+* [Project Unique Key](#project-unique-key)
+* [Project Tagging](#project-tagging)
+* [Quality Profile](#quality-profile)
+	* [Setting and Extending a Quality Profile](#setting-and-extending-a-quality-profile)
+* [Quality Gate](#quality-gate)
+	* [Setting the Quality Gate](#setting-the-quality-gate)
+* [Treemap](#treemap)
+* [Activity](#activity)
+* [Portfolios](#portfolios)
+	* [Adding Projects](#adding-projects)
+	* [Creating Sub-Portfolios](#creating-sub-portfolios)
+* [Filters](#filters)
 
-      * [Aggregation](chapters/04_aggregation.md#aggregation)
-         * [Portfolios](chapters/04_aggregation.md#portfolios)
-            * [Adding Projects](chapters/04_aggregation.md#adding-projects)
-            * [Creating Sub-Portfolios](chapters/04_aggregation.md#creating-sub-portfolios)
-         * [Filters](chapters/04_aggregation.md#filters)
+<!-- /TOC -->
 
-      * [Security](chapters/05_security.md#security)
-
-      * [PQI recommendation](chapters/06_pqi_recommendation.md#pqi-recommendation)
 
 ------------------------------------------------------------------------
 
@@ -44,9 +40,9 @@ Project Structure
 -----------------
 
 To base our goal, let's assume we have the following project structure:
-![Project Structure](project-structure.mm.png)
+![Project Structure](res/project-structure.mm.png)
 as we can see, we have a single project holding two **major versions**, each with multiple **minor versions**, comprised of several **builds**.
-![Project Aggregation](project-aggregation.mm.png)
+![Project Aggregation](res/project-aggregation.mm.png)
 Because SonarQube enables version trending within it's Project items, we recommend creating a Project item for each minor version, thus each Project item will aggregate changing builds.
 
 ### Project Unique Key
@@ -63,7 +59,7 @@ for example:
 satellite_6_2_foreman_ruby_coverage
 ```
 
-![Project dashboard](sonar-project-dashboard.png)
+![Project dashboard](res/sonar-project-dashboard.png)
 
 > ⚔ Note: In the example above, key parameter is highlighted in **red** but the **blue** parameter is the project **dashboard display name** parameter, not to be confused.
 
@@ -103,22 +99,22 @@ The quality profile settings enlists a set of pre-configured rules which enables
 #### Setting and Extending a Quality Profile
 
 1.  Go to the **Quality Profiles** page and click on the **create**
-    ![Create profile](sonar-create-profile.png)
+    ![Create profile](res/sonar-create-profile.png)
 
 2.  Select the language you are analyzing and request to create your profile
-    ![Save profile](sonar-save-profile.png)
+    ![Save profile](res/sonar-save-profile.png)
 
 3.  Inherit the Central-CI profile by clicking **Change Parent** and selecting the **CCI <language>** profile
-    ![Inherit profile](sonar-inherit-profile.png)
+    ![Inherit profile](res/sonar-inherit-profile.png)
 
 4.  And you can now extend your project rules by selecting **quality\_profiles.activate\_more**
-    ![Extend rules](sonar-extend-rules.png)
+    ![Extend rules](res/sonar-extend-rules.png)
 
     > ⚔ Note: Every project **must** inherit the Central-CI standard
     > profile as it establishes minimal requested standards.
 
 5.  Finally, in your project dashboard, go to **Administration --&gt; Quality Profiles**, set your newly created profile and click **update**
-    ![Set profile](sonar-set-profile.png)
+    ![Set profile](res/sonar-set-profile.png)
 
 And you are done! ✨
 
@@ -132,7 +128,7 @@ Each project's build is considered as either **passed** or **failed** as defined
 
 In order to set the quality gate simply go to **Administration --&gt; Quality Gate** in your project dashboard and select the **CCI Gateway** option in the dropdown menu.
 
-![Set gate](sonar-set-gate.png)
+![Set gate](res/sonar-set-gate.png)
 
 ------------------------------------------------------------------------
 
@@ -147,7 +143,7 @@ The treemap chart presents the different sub-modules of the of a single project,
 
 In order to view the treemap, on the project view, go to the **Measures** tab and on the side-panel select **Coverage** and then above the chart, select the **Treemap** option. For example:
 
-![Treemap](visual-treemap.png)
+![Treemap](res/visual-treemap.png)
 
 ### Activity
 
@@ -155,7 +151,7 @@ The activity panel enables us to view our coverage history context and visualize
 
 In order to get to the activity panel, on your project view, go to the **Activity** tab and on the top list menu, select **Coverage** to view the coverage trends. For example:
 
-![Activity](visual-activity.png)
+![Activity](res/visual-activity.png)
 
 ------------------------------------------------------------------------
 
@@ -166,7 +162,7 @@ Aggregation
 
 Let's be reminded of our original project structure and review the work we did so far. We've created for each collection of version builds a SonarQube project, tagged them properly and configures appropriate profiles.
 
-![Dashboard Structure](dashboard-structure.mm.png)
+![Dashboard Structure](res/dashboard-structure.mm.png)
 
 But now we want to be able to aggregate these separate minor versions into their own respective major versions which should then comprise our full project.
 
@@ -176,26 +172,26 @@ For these ends we have **Filters and Portfolios.**
 
 A portfolio is an multi-project dashboard which enables appending SonarQube projects, while their metrics are aggregated together to an average.
 
-![View Dashboard](view-dashboard.png)
+![View Dashboard](res/view-dashboard.png)
 
 For our example we would like wrap our **Project Head** into a portfolio which will contain two sub-portfolios, one for each **Major Version** which will hold it's respective **Minor Version** projects.
 
-![Views Structure](views-structure.mm.png)
+![Views Structure](res/views-structure.mm.png)
 
 #### Adding Projects
 
 1.  In the portfolio dashboard, go to **Administration --&gt; Edit Definition**
-    ![Edit view](views-configuration.png)
+    ![Edit view](res/views-configuration.png)
 
 2.  Pick manual selection and select the projects you wish to add to the portfolio
-    ![Select projects](views-add-projects.png)
+    ![Select projects](res/views-add-projects.png)
 
 #### Creating Sub-Portfolios
 
 1.  Select **Add Portfolio** on the Portfolio configuration page
 
 2.  You will then be able to select whether you want to imploy a new Portfolio or aggregate an already-existing Local-Reference Portfolio.
-    ![Add subportfolio](views-add-subview.png)
+    ![Add subportfolio](res/views-add-subview.png)
 
 3.  Click the **Add** button to aggregate the portfolio into the currently selected one
 
@@ -204,10 +200,10 @@ For our example we would like wrap our **Project Head** into a portfolio which w
 For occasions which require a quick overview of several projects, we can also use the filters system that enables us to filter out the correct projects by tag and output them onto a chart.
 
 1.  In the **Projects** page, select the tags you are interested in. If you've performed the steps mentioned in the Project Structure section, you should have one for each heirarch level.
-    ![Select tags](filters-select-tag.png)
+    ![Select tags](res/filters-select-tag.png)
 
 2.  You can then pick the **Coverage** option in the **Perspective** menu, to get a bubble chart dipicting the coverage quality of each tagged project in comparison.
-    ![Coverage bubble chart](filters-coverage-bubbles.png)
+    ![Coverage bubble chart](res/filters-coverage-bubbles.png)
 
 and we are done! ✨
 
@@ -217,7 +213,7 @@ Security
 --------
 
 You are now able to edit project specific permissions in order to add more users by selecting **Administration -&gt; Permissions** on the project page
-![Change permissions](permissions.png)
+![Change permissions](res/permissions.png)
 
 > ⚔ Note: Central-CI provides permissions **only** the the DevOps representative of the project, who may then create and provide more users for automation or grant LDAP users the appropriate permissions for further project maniplulation.
 
@@ -236,4 +232,4 @@ These are:
 -   **Coverage histogram** - Not only it provides a trend of a products quality value but by comparing it to the enterprises average code quality index as well as it's gate, we can give an honest evaluation of a product in comparison to the company's moving standard.
 
 as can be seen in the render below
-![pqi proposal charts](pqi-dashboard.png)
+![pqi proposal charts](res/pqi-dashboard.png)
