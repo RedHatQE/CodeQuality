@@ -52,7 +52,7 @@ This document is separated into 3 parts:
 - python 2.7+
 - [coverage.py](http://coverage.readthedocs.io/en/latest/cmd.html)
 
-> ⚔ Note: notice there are several methods and tools to run code coverage such as [nose](http://nose.readthedocs.io/en/latest/), [pytest](http://doc.pytest.org/en/latest/), [pyunit](https://wiki.python.org/moin/PyUnit), [testools](https://testtools.readthedocs.io/en/latest/), as well as running coverage in a different [subprocess and pre-configuring your coverage testing environment](https://mojo.redhat.com/docs/DOC-1007254).
+> ⚔ Note: notice there are several methods and tools to run code coverage such as [nose](http://nose.readthedocs.io/en/latest/), [pytest](http://doc.pytest.org/en/latest/), [pyunit](https://wiki.python.org/moin/PyUnit) as well as, [testools](https://testtools.readthedocs.io/en/latest/).
 > we will only introduce one way of going about it which we have concluded to be the most suitable and straightforward for this process.
 
 ### Running code coverage manually
@@ -171,7 +171,7 @@ The following example includes encountering a failure and a successful run. Let'
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/shakedlokits/python_coverage_testfiles](https://github.com/shakedlokits/python_coverage_testfiles)**.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/shakedlokits/CodeQuality/tree/python-test-repo](https://github.com/shakedlokits/CodeQuality/tree/python-test-repo)**.
 
 #### Example
 
@@ -195,7 +195,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
      pip install coverage unittest2
 
      # fetch your codebase into your testing environment
-     git clone https://github.com/shakedlokits/python_coverage_testfiles.git ${WORKSPACE}/some-project
+     git clone -b python-test-repo https://github.com/shakedlokits/CodeQuality ${WORKSPACE}/some-project
 
      # run the coverage tests and export the results xml
      cd ${WORKSPACE}/some-project
@@ -258,7 +258,7 @@ Continuing from the previous section, assuming our newly created job has generat
 - [SonarQube v5.6.3 LTS](https://docs.sonarqube.org/display/SONAR/Setup+and+Upgrade)
 - [SonarQube Runner v2.6+](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner)
 
-> ⚔ Note: in order to deploy a SonarQube instance, you can refer to the [Installing Sonar Server v5.6.3](https://docs.engineering.redhat.com/display/~slokits/Installing+Sonar+Server+v5.6.3) document or use the Central-CI instances, see [Central CI SonarQube Instances](https://mojo.redhat.com/docs/DOC-1098209) for more information.
+> ⚔ Note: in order to deploy a SonarQube instance, you can refer to the [Installing Sonar Server v6.0.7](../../deployments) document
 
 > ⚔ Note: for Jenkins Sonar plugin configuration see [Analyzing with SonarQube Scanner for Jenkins](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Jenkins) for details.
 
@@ -381,14 +381,14 @@ As a continuation of the previous examples and assuming our generated coverage r
 
     ```shell
      # host.url (string): the URL pointing to the SonarServer instance
-     sonar.host.url=http://sonar-test.lab.eng.rdu2.redhat.com:9000
+     sonar.host.url=http://sonar_server_address:9000
     ```
 
     all together, our final command should look as follows:
 
     ```shell
      sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
-         -Dsonar.host.url=http://sonar-test.lab.eng.rdu2.redhat.com\
+         -Dsonar.host.url=http://sonar_server_address\
          -Dsonar.projectKey=some-project_coverage_slokits\
          "-Dsonar.projectName=Some Project"\
          -Dsonar.projectVersion=1.0\
@@ -409,11 +409,11 @@ As a continuation of the previous examples and assuming our generated coverage r
 
     ```shell
      DEBUG: Upload report
-     DEBUG: POST 200 http://sonar-test.lab.eng.rdu2.redhat.com/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=34ms
+     DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=34ms
      INFO: Analysis report uploaded in 41ms
-     INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar-test.lab.[v2.6+ of SonarRunner](https://github.com/SonarSource/sonar-scanner-cli/releases)eng.rdu2.redhat.com/dashboard/index/some-project_coverage_slokits
+     INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project_coverage_slokits
      INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
-     INFO: More about the report processing at http://sonar-test.lab.eng.rdu2.redhat.com/api/ce/task?id=AVpaB5_70YnVK7Pmb1mm
+     INFO: More about the report processing at http://sonar_server_address/api/ce/task?id=AVpaB5_70YnVK7Pmb1mm
      DEBUG: Report metadata written to /some-project/.sonar/report-task.txt
      DEBUG: Post-jobs :
      INFO: ------------------------------------------------------------------------
@@ -537,7 +537,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/python_coverage_testfiles.git'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'python-test-repo'
                 sh 'dnf install -y python2-devel.x86_64'
                 sh 'pip install coverage unittest2'
             }
@@ -667,7 +667,7 @@ The following file illustrates a possible JJB configuration
       # project deployment script goes here
       - shell: |
           # install dependencies
-          dnf install -y wget python-devel.x86_64 rpm-build redhat-lsb-core
+          dnf install -y wget python-devel.x86_64 rpm-build
 
           # deployment command to install pulp testing requirements
           rpmspec -q --queryformat '[%{REQUIRENAME}\n]' *.spec |\

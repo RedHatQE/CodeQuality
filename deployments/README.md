@@ -68,11 +68,10 @@ Steps:
 1. Setup:
 
   ```bash
-  git clone https://github.com/abraverm/ansible-sonar-deployment.git
-  cd ansible-sonar-deployment
+  git clone https://github.com/shakedlokits/CodeQuality.git
+  cd CodeQuality/deployments/ansible-sonar-deployment
   ansible-galaxy install -r requirements.yml -p roles
   ```
-<!-- TODO: add the deployment repo -->
 
 2. Edit 'inventory' file:
 

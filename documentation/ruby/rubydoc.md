@@ -250,7 +250,7 @@ Let's assume you have the following 2 ruby files and an additional Gemfile:
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository `[https://github.com/shakedlokits/ruby_coverage_testfiles.git](https://github.com/shakedlokits/ruby_coverage_testfiles.git)`.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository `[https://github.com/shakedlokits/CodeQuality/tree/ruby-test-repo](https://github.com/shakedlokits/CodeQuality/tree/ruby-test-repo)`.
 
 #### Example
 
@@ -274,7 +274,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
 
     ```shell
 	# install dependencies
-	dnf install -y ruby-devel ruby-devel rubygems-devel cmake make gcc redhat-rpm-config
+	dnf install -y ruby-devel ruby-devel rubygems-devel cmake make gcc
 	gem install bundler
 
 	# install coverage dependencies from Gemfile
@@ -344,8 +344,7 @@ Continuing from the previous section, assuming our newly created job has generat
   - [SonarQube Runner v2.6+](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner)
 
 > ⚔ Note: in order to deploy a SonarQube instance, you can refer to the
-	[Installing Sonar Server v5.6.3](https://docs.engineering.redhat.com/display/~slokits/Installing+Sonar+Server+v5.6.3) document or use the Central-CI instances, see [Central CI SonarQube Instances](https://mojo.redhat.com/docs/DOC-1098209)
-	for more information.
+	[Installing Sonar Server v5.6.3](../../deployments) document for more information.
 
 > ⚔ Note: for Jenkins Sonar plugin configuration see
 [Analyzing with SonarQube Scanner for Jenkins](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Jenkins) for details.
@@ -462,14 +461,14 @@ As a continuation of the previous examples and assuming our generated coverage r
 
 	```shell
 	# host.url (string): the URL pointing to the SonarServer instance
-	sonar.host.url=http://sonar-test.lab.eng.rdu2.redhat.com
+	sonar.host.url=http://sonar_server_address
 	```
 
 	all together, our final command should look as follows:
 
 	```shell
 	sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
-        -Dsonar.host.url=http://sonar-test.lab.eng.rdu2.redhat.com\
+        -Dsonar.host.url=http://sonar_server_address\
         -Dsonar.projectKey=some-project_coverage_slokits\
         "-Dsonar.projectName=Some Project"\
         -Dsonar.projectVersion=1.0\
@@ -489,11 +488,11 @@ As a continuation of the previous examples and assuming our generated coverage r
 
 	```shell
 	DEBUG: Upload report
-	DEBUG: POST 200 http://sonar-test.lab.eng.rdu2.redhat.com/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=43ms
+	DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=43ms
 	INFO: Analysis report uploaded in 52ms
-	INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar-test.lab.eng.rdu2.redhat.com/dashboard/index/some-project_coverage_slokits
+	INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project_coverage_slokits
 	INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
-	INFO: More about the report processing at http://sonar-test.lab.eng.rdu2.redhat.com/api/ce/task?id=AVrR-YHSEXNZ6r-PQPEx
+	INFO: More about the report processing at http://sonar_server_address/api/ce/task?id=AVrR-YHSEXNZ6r-PQPEx
 	DEBUG: Report metadata written to /root/ruby_coverage_testfiles/.sonar/report-task.txt
 	DEBUG: Post-jobs :
 	INFO: ------------------------------------------------------------------------
@@ -525,7 +524,7 @@ We are proposing the following solution, which inserts a pipeline hook to each r
 
 1. run the following command to deploy the coverage process hook:
     ```bash
-    curl https://raw.githubusercontent.com/shakedlokits/ruby_subprocess_coverage/master/coverage.rb >> $(gem which rubygems)
+    curl https://raw.githubusercontent.com/shakedlokits/CodeQuality/blob/master/tooling/coverage.rb >> $(gem which rubygems)
     ```
 
 2. create a file called `config.yml` at `{config file path}`, containing:
@@ -547,10 +546,10 @@ We are proposing the following solution, which inserts a pipeline hook to each r
 
 You should now have a `.resultset.yml` report file in your `{report_directory}` and we are done!
 
-> 🎉 **Bonus:** If you wish to merge multiple results directories, [Please use the merger.rb tool](https://github.com/shakedlokits/ruby_subprocess_coverage/blob/master/merger.rb) i.e
+> 🎉 **Bonus:** If you wish to merge multiple results directories, [Please use the merger.rb tool](https://github.com/shakedlokits/CodeQuality/blob/master/tooling/merger.rb) i.e
 > ```ruby merger.rb {coverage_directory1} {coverage_directory1} ```
 
-> 🎉 **Bonus:** If you wish to cover the same command repeatedly, use a different name for the analysis using the `RUBY_COVERAGE_NAME` environment, [You could then use the merger.rb tool](https://github.com/shakedlokits/ruby_subprocess_coverage/blob/master/merger.rb) to unify the result hits
+> 🎉 **Bonus:** If you wish to cover the same command repeatedly, use a different name for the analysis using the `RUBY_COVERAGE_NAME` environment, [You could then use the merger.rb tool](https://github.com/shakedlokits/CodeQuality/blob/master/tooling/merger.rb) to unify the result hits
 > ```bash
 # run the tests with different identifiers
 RUBY_COVERAGE_NAME=first_run RUBY_COVERAGE_CONFIG=/config.yml ruby app.rb
@@ -589,8 +588,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/ruby_coverage_testfiles.git'
-                sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc redhat-rpm-config'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'ruby-test-repo'
+                sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc'
                 sh 'gem install bundler'
 
                 // install coverage dependencies from Gemfile

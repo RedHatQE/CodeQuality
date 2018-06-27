@@ -45,7 +45,9 @@
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/ruby-sonar-plugin.git
+          url: https://github.com/shakedlokits/CodeQuality.git
+          branches:
+            - java-test-repo
           skip-tag: true
 
     # git polling trigger set to once an hour

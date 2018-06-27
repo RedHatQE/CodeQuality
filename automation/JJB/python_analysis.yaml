@@ -65,7 +65,7 @@
       # project deployment script goes here
       - shell: |
           # install dependencies
-          dnf install -y wget python2-devel.x86_64 rpm-build redhat-lsb-core
+          dnf install -y wget python2-devel.x86_64 rpm-build
 
           # deployment command to install pulp testing requirements
           rpmspec -q --queryformat '[%{REQUIRENAME}\n]' *.spec |\

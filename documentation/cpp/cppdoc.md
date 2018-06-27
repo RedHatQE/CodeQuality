@@ -178,7 +178,7 @@ you can now find our generated **report.xml** report file in the working directo
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/shakedlokits/cpp_coverage_testfiles.git](https://github.com/shakedlokits/cpp_coverage_testfiles.git)**.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/shakedlokits/CodeQuality/tree/cpp-test-repo](https://github.com/shakedlokits/CodeQuality/tree/cpp-test-repo)**.
 
 #### Example
 
@@ -192,7 +192,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
 
 3. on the newly opened screen, set the SCM to git and paste in our repository
 		```plain
-		https://github.com/shakedlokits/cpp_coverage_testfiles.git
+		https://github.com/shakedlokits/CodeQuality/tree/cpp-test-repo
 		```
 
     ![set SCM](./res/jenkins-set-scm.png "set SCM")
@@ -274,8 +274,6 @@ Continuing from the previous section, assuming our newly created job has generat
 - [Jenkins v1.653+](https://jenkins.io/)
 - [SonarQube v5.6.3 LTS](https://docs.sonarqube.org/display/SONAR/Setup+and+Upgrade)
 - [SonarQube Runner v2.6+](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner)
-
-> ⚔ Note: in order to deploy a SonarQube instance, you can refer to the [Installing Sonar Server v5.6.3](https://docs.engineering.redhat.com/display/~slokits/Installing+Sonar+Server+v5.6.3) document or use the Central-CI instances, see [Central CI SonarQube Instances](https://mojo.redhat.com/docs/DOC-1098209) for more information.
 
 > ⚔ Note: for Jenkins Sonar plugin configuration see [Analyzing with SonarQube Scanner for Jenkins](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Jenkins) for details.
 
@@ -392,14 +390,14 @@ As a continuation of the previous examples and assuming our generated coverage r
 
     ```shell
      # host.url (string): the URL pointing to the SonarServer instance
-     sonar.host.url=http://sonar-test.lab.eng.rdu2.redhat.com:9000
+     sonar.host.url=<sonar-server-url>
     ```
 
     all together, our final command should look as follows:
 
     ```shell
 sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
-		-Dsonar.host.url=http://sonar-test.lab.eng.rdu2.redhat.com\
+		-Dsonar.host.url=<sonar-server-url>\
 		-Dsonar.projectKey=some-project_coverage_slokits\
 		"-Dsonar.projectName=Some Project"\
 		-Dsonar.projectVersion=1.0\
@@ -421,9 +419,9 @@ sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
 		DEBUG: Upload report
 		DEBUG: POST 200
 		INFO: Analysis report uploaded in 17ms
-		INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar-test.lab.eng.rdu2.redhat.com:9000/dashboard/index/sonarqube_testfiles_cpp_full_analysis
+		INFO: ANALYSIS SUCCESSFUL, you can browse <sonar-server-url>/dashboard/index/sonarqube_testfiles_cpp_full_analysis
 		INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
-		INFO: More about the report processing at http://sonar-test.lab.eng.rdu2.redhat.com:9000/api/ce/task?id=AVyIGhPDpIFAEL-ZWqjg
+		INFO: More about the report processing at <sonar-server-url>/api/ce/task?id=AVyIGhPDpIFAEL-ZWqjg
 		DEBUG: Report metadata written to .sonar/report-task.txt
 		DEBUG: Post-jobs :
 		INFO: ------------------------------------------------------------------------
@@ -469,7 +467,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/cpp_coverage_testfiles.git'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'cpp-test-repo'
                 sh """dnf install -y gcc-c++ cppunit-devel.x86_64 \
                 cppunit.x86_64 unzip wget python2-devel
                 """
@@ -598,7 +596,9 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/cpp_coverage_testfiles.git
+          url: https://github.com/shakedlokits/CodeQuality.git
+          branches:
+            - cpp-test-repo
           skip-tag: true
 
     # git polling trigger set to once an hour

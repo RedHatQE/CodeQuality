@@ -2,8 +2,6 @@
 
 > ⚔ Note: Each product receives a **single portfolio** from which they are able to generate subportfolios, this procedure is explained in the following. A link for the portfolio will be provided and can **only** be accessed by said link.
 
-> ⚔ Note: In order to provision a view, please contact [Shaked Lokits(slokits)](slokits@redhat.com)
-
 Let's be reminded of our original project structure and review the work we did so far. We've created for each collection of version builds a SonarQube project, tagged them properly and configures appropriate profiles.
 
 ![Dashboard Structure](../res/dashboard-structure.mm.png)
@@ -29,8 +27,6 @@ For our example we would like wrap our **Project Head** into a portfolio which w
 
 2. Pick manual selection and select the projects you wish to add to the portfolio
 ![Select projects](../res/views-add-projects.png)
-
-> ⚔ Note: Portfolios might take up to an hour to update. In order to request higher responsiveness for initial configuration, please contact [Shaked Lokits](mailto:slokits@redhat.com)
 
 #### Creating Sub-Portfolios
 

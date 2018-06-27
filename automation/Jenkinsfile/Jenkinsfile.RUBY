@@ -10,8 +10,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/ruby_coverage_testfiles.git'
-                sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc redhat-rpm-config'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'ruby-test-repo'
+                sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc'
                 sh 'gem install bundler'
 
                 // install coverage dependencies from Gemfile

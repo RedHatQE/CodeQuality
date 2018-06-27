@@ -10,7 +10,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/python_coverage_testfiles.git'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'python-test-repo'
                 sh 'dnf install -y python2-devel.x86_64'
                 sh 'pip install coverage unittest2'
             }

@@ -224,7 +224,7 @@ Let's assume you have the following 2 Java files and an additional POM file:
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository **<https://github.com/shakedlokits/java_coverage_testfiles.git>**.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository **<https://github.com/shakedlokits/CodeQuality/tree/java-test-repo>**.
 
 #### Example
 
@@ -308,8 +308,6 @@ Continuing from the previous section, assuming our newly created job has generat
 - [Jenkins v1.653+](https://jenkins.io/)
 - [SonarQube v5.6.3 LTS](https://docs.sonarqube.org/display/SONAR/Setup+and+Upgrade)
 
-> ⚔ Note: in order to deploy a SonarQube instance, you can refer to the [Installing Sonar Server v5.6.3](https://docs.engineering.redhat.com/display/~slokits/Installing+Sonar+Server+v5.6.3) document or use the Central-CI instances, see [Central CI SonarQube Instances](https://mojo.redhat.com/docs/DOC-1098209) for more information.
-
 ### Integrating SonarQube through the Jenkins web UI
 
 As a direct continuation of the previous chapter, building on the same Jenkins job, we'll now add the SonarQube integration.
@@ -326,7 +324,7 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
     <sonar.language>java</sonar.language>
 
     <!-- host.url (string): SonarQube server URL(test server URL) -->
-    <sonar.host.url>http://sonar-test.lab.eng.rdu2.redhat.com</sonar.host.url>
+    <sonar.host.url>sonar_server_address</sonar.host.url>
 
     <!-- projectKey (string): SonarQube project identification key (unique) -->
     <sonar.projectKey>maven-test-project_full-analysis_slokits</sonar.projectKey>
@@ -384,7 +382,7 @@ Sometimes it's useful to be able to publish our coverage report to SonarQube man
     <sonar.language>java</sonar.language>
 
     <!-- host.url (string): SonarQube server URL(test server URL) -->
-    <sonar.host.url>http://sonar-test.lab.eng.rdu2.redhat.com</sonar.host.url>
+    <sonar.host.url>sonar_server_address</sonar.host.url>
 
     <!-- projectKey (string): SonarQube project identification key (unique) -->
     <sonar.projectKey>maven-test-project_full-analysis_slokits</sonar.projectKey>
@@ -409,11 +407,11 @@ Sometimes it's useful to be able to publish our coverage report to SonarQube man
 
     ```shell
     DEBUG: Upload report
-    DEBUG: POST 200 http://sonar-test.lab.eng.rdu2.redhat.com/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=43ms
+    DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=43ms
     INFO: Analysis report uploaded in 52ms
-    INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar-test.lab.eng.rdu2.redhat.com/dashboard/index/some-project_coverage_slokits
+    INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project_coverage_slokits
     INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
-    INFO: More about the report processing at http://sonar-test.lab.eng.rdu2.redhat.com/api/ce/task?id=AVrR-YHSEXNZ6r-PQPEx
+    INFO: More about the report processing at http://sonar_server_address/api/ce/task?id=AVrR-YHSEXNZ6r-PQPEx
     DEBUG: Report metadata written to /root/ruby_coverage_testfiles/.sonar/report-task.txt
     DEBUG: Post-jobs :
     INFO: ---------------------------------------------
@@ -478,12 +476,12 @@ This example runs against the java_coverage_testfiles example project from above
 
 1. Clone the example project.
   ```bash
-  git clone https://github.com/shakedlokits/java_coverage_testfiles.git ~/java_coverage_testfiles
+  git clone -b java-test-repo https://github.com/shakedlokits/CodeQuality ~/java_coverage_testfiles
   ```
 
 2. Change into the cloned project.
   ```bash
-  cd ~/java_coverage_testfiles
+  cd ~/CodeQuality
   ```
 
 3. Get a copy of the org.jacoco.agent-0.8.0-runtime.jar.
@@ -536,7 +534,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/java_coverage_testfiles.git'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'java-test-repo'
                 sh 'dnf install -y maven java-1.8.0-openjdk-devel.x86_64'
             }
         }
@@ -644,7 +642,9 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/ruby-sonar-plugin.git
+          url: https://github.com/shakedlokits/CodeQuality.git
+          branches:
+            - java-test-repo
           skip-tag: true
 
     # git polling trigger set to once an hour

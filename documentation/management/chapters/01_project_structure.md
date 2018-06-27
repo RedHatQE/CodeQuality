@@ -20,7 +20,7 @@ satellite_6_2_foreman_ruby_coverage
 
 > ⚔ Note: In the example above, key parameter is highlighted in **red** but the **blue** parameter is the project **dashboard display name** parameter, not to be confused.
 
-> ⚔ Note: For more information on SonarQube publishing see the [Documentation section in the Code Coverage & Analysis Overview](https://docs.engineering.redhat.com/pages/viewpage.action?pageId=44543267#CodeCoverage&Analysis-Documentation) for language specific implementations under Dynamic Analysis.
+> ⚔ Note: For more information on SonarQube publishing see the [Documentation section in the Code Coverage & Analysis Overview](../) for language specific implementations under Dynamic Analysis.
 
 ### Project Tagging
 

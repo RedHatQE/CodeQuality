@@ -10,7 +10,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/cpp_coverage_testfiles.git'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'cpp-test-repo'
                 sh """dnf install -y gcc-c++ cppunit-devel.x86_64 \
                 cppunit.x86_64 unzip wget python2-devel
                 """

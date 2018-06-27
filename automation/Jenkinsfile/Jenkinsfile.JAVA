@@ -10,7 +10,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git 'https://github.com/shakedlokits/java_coverage_testfiles.git'
+                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'java-test-repo'
                 sh 'dnf install -y maven java-1.8.0-openjdk-devel.x86_64'
             }
         }

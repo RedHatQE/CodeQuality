@@ -45,7 +45,9 @@
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/cpp_coverage_testfiles.git
+          url: https://github.com/shakedlokits/CodeQuality.git
+          branches:
+            - cpp-test-repo
           skip-tag: true
 
     # git polling trigger set to once an hour
