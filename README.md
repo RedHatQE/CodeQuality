@@ -2,7 +2,7 @@
   <img width="650" height="250" src="res/codequality.svg.png">
 </p>
 
-The following document introduces the my perspective on the integration of SonarQube and it's role within the code quality tool-set from my experiences as a solutions architect, designing a code quality metric infrastructure at RedHat. Here you will find the project summary, compatibility matrix, workflows and additional reading materials on specific subjects.
+The following document introduces the my perspective on the integration of SonarQube and it's role within the code quality tool-set from **my experiences as a solutions architect, designing a code quality metric infrastructure at RedHat for the past 2 years.** Here you will find the project summary, compatibility matrix, workflows and additional reading materials on specific subjects.
 
 ## Objective
 
@@ -25,10 +25,10 @@ The following matrix illustrates the current tested monitoring and reporting cap
 
 Language / Metric  | Code Coverage  | Static Analysis  | Jenkins Automation  | Jenkins Publishing  | SonarQube Publishing
 --|---|---|---|---|--
-**Java**  | ✅  | ✅  | ✅  | ✅  | ✅
-**Ruby**  | ✅  | ✅  | ✅  | ✅  | ✅
-**C/C++**  | ✅  | ✖  | ✅  | ✅  | ✅
-**Python**  | ✅  | ✅  | ✅  | ✅  | ✅
+**Java**  | ✔  | ✔  | ✔  | ✔  | ✔
+**Ruby**  | ✔  | ✔  | ✔  | ✔  | ✔
+**C/C++**  | ✔  | ✖  | ✔  | ✔  | ✔
+**Python**  | ✔  | ✔  | ✔  | ✔  | ✔
 
 ## Implemetation Time Assessment
 
@@ -62,3 +62,8 @@ Jenkins Master - v2.60.3
 Docker Daemon - v1.9.0, build 76d6bc9
 Sonar Server - v6.7 LTS [(Installation Instructions)](deployments)
 Sonar Scanner - v2.8
+
+## Super Special Thanks
+I'd like to give million thanks to [Alex Braverman](https://github.com/abraverm) who've been with me this entire process and made this pain-stakingly long process bearable with amounts of dark humor this world is yet ready to recieve.
+I also wanna thank the fabulous [Jared Wilkerson](https://github.com/lyrch) who carried and is still carrying through with finishing some final touches on the visualization parts of this project and the awesome person he is in general.
+Finally and of course, great credit goes to the entire RedHat community for being such and inspiring people to follow in their footsteps.

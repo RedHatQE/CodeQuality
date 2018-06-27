@@ -10,7 +10,7 @@ x-reference-data:
   toc-file-name: &toc-file
     - toc.md
   temporary-file-names: &all-temporaries
-    # - managementdoc.md
+    # - opening.md
     - managementdoc.confluence
     - toc.md
 
