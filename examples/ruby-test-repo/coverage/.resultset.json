@@ -1,0 +1,15 @@
+{
+  "Unit Tests": {
+    "coverage": {
+      "/home/slokits/Desktop/sonarDocumentation/ruby/res/ruby_coverage_testfiles/a.rb": [
+        1,
+        1,
+        0,
+        null,
+        1,
+        null
+      ]
+    },
+    "timestamp": 1490273500
+  }
+}
