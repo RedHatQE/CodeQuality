@@ -224,7 +224,7 @@ Let's assume you have the following 2 Java files and an additional POM file:
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository **<https://github.com/shakedlokits/CodeQuality/tree/java-test-repo>**.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository **<https://github.com/RedHatQE/CodeQuality/tree/master/examples/java-test-repo>**.
 
 #### Example
 
@@ -476,12 +476,12 @@ This example runs against the java_coverage_testfiles example project from above
 
 1. Clone the example project.
   ```bash
-  git clone -b java-test-repo https://github.com/shakedlokits/CodeQuality ~/java_coverage_testfiles
+  git clone https://github.com/RedHatQE/CodeQuality
   ```
 
 2. Change into the cloned project.
   ```bash
-  cd ~/CodeQuality
+  cd ~/CodeQuality/examples/java-test-repo
   ```
 
 3. Get a copy of the org.jacoco.agent-0.8.0-runtime.jar.
@@ -630,6 +630,18 @@ The following file illustrates a possible JJB configuration
           description: "SonarQube project version"
 
     #######################################################
+    ############### Logging Aggregation ###################
+    #######################################################
+
+    # define how many days to kee build information
+    properties:
+      - build-discarder:
+          days-to-keep: 60
+          num-to-keep: 200
+          artifact-days-to-keep: 60
+          artifact-num-to-keep: 200
+
+    #######################################################
     ################### Slave Image #######################
     #######################################################
 
@@ -642,15 +654,13 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/CodeQuality.git
-          branches:
-            - java-test-repo
+          url: https://github.com/RedHatQE/CodeQuality.git
           skip-tag: true
 
     # git polling trigger set to once an hour
     triggers:
       - pollscm:
-          cron: "H */1 * * *"
+          cron: "0 0 * * 0"
           ignore-post-commit-hooks: True
 
     #######################################################
@@ -665,28 +675,33 @@ The following file illustrates a possible JJB configuration
 
       # coverage tests initialization script
       - shell: |
+          cd examples/java-test-repo
           mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent \
             install -Dmaven.test.failure.ignore=true || true
 
       # sonar runner parameters, set sources and baseDir to project home
       # projectKey (string): SonarQube project identification key (unique)
       # projectName (string): SonarQube project name (NOT unique)
-      # projectVersion (string): Analyzed project version (unique)
+      # projectVersion (string): SonarQube project version (unique)
       # sources (string): source code home directory
       # projectBaseDir (string): project home directory (same as sources)
       # language (string): project language(ruby)
       # inclusions (string): file inclusion pattern
       # exclusions (string): file exclusion pattern
+      # login (string): SonarQube server user name
+      # password (string): SonarQube server user password
       - sonar:
-          sonar-name: sonar
+          sonar-name: slokits_test_env_stable
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=/ruby-sonar-plugin/
-            sonar.projectBaseDir=/ruby-sonar-plugin/
+            sonar.sources=${WORKSPACE}/examples/java-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/java-test-repo
             sonar.language=java
             sonar.inclusions=**/*.java
             sonar.exclusions=src/test/**/*.java
+            sonar.login=test
+            sonar.password=test
             sonar.ws.timeout=180
 ```

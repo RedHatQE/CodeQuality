@@ -10,18 +10,22 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'ruby-test-repo'
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
                 sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc'
                 sh 'gem install bundler'
 
                 // install coverage dependencies from Gemfile
+                dir('examples/ruby-test-repo'){
                 sh 'bundler install'
+                }
             }
         }
         stage('Analyse') {
             steps {
+                dir('examples/ruby-test-repo'){
                 // run tests with coverage and export results to yml
                 sh 'COVERAGE=on ruby main.rb'
+                }
             }
         }
         stage('Report') {
@@ -45,8 +49,8 @@ pipeline {
               sonar.projectKey=test-files_1_0_ruby_coverage
               sonar.projectName=Ruby Testfiles
               sonar.projectVersion=1.0
-              sonar.sources=${pwd()}
-              sonar.projectBaseDir=${pwd()}
+              sonar.sources=${pwd()}/examples/ruby-test-repo
+              sonar.projectBaseDir=${pwd()}/examples/ruby-test-repo
               sonar.language=ruby
               sonar.inclusions=**/*.rb
               sonar.exclusions=tests/**/*.rb
@@ -56,9 +60,9 @@ pipeline {
               """
 
               // initite pre-configured sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
-              withSonarQubeEnv('slokits_test_env') {
+              withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
 
               }

@@ -250,7 +250,7 @@ Let's assume you have the following 2 ruby files and an additional Gemfile:
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository `[https://github.com/shakedlokits/CodeQuality/tree/ruby-test-repo](https://github.com/shakedlokits/CodeQuality/tree/ruby-test-repo)`.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository `[https://github.com/RedHatQE/CodeQuality/tree/master/examples/ruby-test-repo](https://github.com/RedHatQE/CodeQuality/tree/master/examples/ruby-test-repo)`.
 
 #### Example
 
@@ -524,7 +524,7 @@ We are proposing the following solution, which inserts a pipeline hook to each r
 
 1. run the following command to deploy the coverage process hook:
     ```bash
-    curl https://raw.githubusercontent.com/shakedlokits/CodeQuality/blob/master/tooling/coverage.rb >> $(gem which rubygems)
+    curl https://github.com/RedHatQE/CodeQuality/blob/master/tooling/coverage.rb >> $(gem which rubygems)
     ```
 
 2. create a file called `config.yml` at `{config file path}`, containing:
@@ -546,10 +546,10 @@ We are proposing the following solution, which inserts a pipeline hook to each r
 
 You should now have a `.resultset.yml` report file in your `{report_directory}` and we are done!
 
-> 🎉 **Bonus:** If you wish to merge multiple results directories, [Please use the merger.rb tool](https://github.com/shakedlokits/CodeQuality/blob/master/tooling/merger.rb) i.e
+> 🎉 **Bonus:** If you wish to merge multiple results directories, [Please use the merger.rb tool](hhttps://github.com/RedHatQE/CodeQuality/blob/master/tooling/merger.rb) i.e
 > ```ruby merger.rb {coverage_directory1} {coverage_directory1} ```
 
-> 🎉 **Bonus:** If you wish to cover the same command repeatedly, use a different name for the analysis using the `RUBY_COVERAGE_NAME` environment, [You could then use the merger.rb tool](https://github.com/shakedlokits/CodeQuality/blob/master/tooling/merger.rb) to unify the result hits
+> 🎉 **Bonus:** If you wish to cover the same command repeatedly, use a different name for the analysis using the `RUBY_COVERAGE_NAME` environment, [You could then use the merger.rb tool](https://github.com/RedHatQE/CodeQuality/blob/master/tooling/merger.rb) to unify the result hits
 > ```bash
 # run the tests with different identifiers
 RUBY_COVERAGE_NAME=first_run RUBY_COVERAGE_CONFIG=/config.yml ruby app.rb
@@ -588,18 +588,22 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'ruby-test-repo'
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
                 sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc'
                 sh 'gem install bundler'
 
                 // install coverage dependencies from Gemfile
+                dir('examples/ruby-test-repo'){
                 sh 'bundler install'
+                }
             }
         }
         stage('Analyse') {
             steps {
+                dir('examples/ruby-test-repo'){
                 // run tests with coverage and export results to yml
                 sh 'COVERAGE=on ruby main.rb'
+                }
             }
         }
         stage('Report') {
@@ -623,8 +627,8 @@ pipeline {
               sonar.projectKey=test-files_1_0_ruby_coverage
               sonar.projectName=Ruby Testfiles
               sonar.projectVersion=1.0
-              sonar.sources=${pwd()}
-              sonar.projectBaseDir=${pwd()}
+              sonar.sources=${pwd()}/examples/ruby-test-repo
+              sonar.projectBaseDir=${pwd()}/examples/ruby-test-repo
               sonar.language=ruby
               sonar.inclusions=**/*.rb
               sonar.exclusions=tests/**/*.rb
@@ -636,7 +640,7 @@ pipeline {
               // initite pre-configured sonar scanner tool on project
               // 'slokits_test_env' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
-              withSonarQubeEnv('slokits_test_env') {
+              withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
 
               }

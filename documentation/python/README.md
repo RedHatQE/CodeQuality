@@ -171,7 +171,7 @@ The following example includes encountering a failure and a successful run. Let'
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/shakedlokits/CodeQuality/tree/python-test-repo](https://github.com/shakedlokits/CodeQuality/tree/python-test-repo)**.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/RedHatQE/CodeQuality/tree/master/examples/python-test-repo](https://github.com/RedHatQE/CodeQuality/tree/master/examples/python-test-repo)**.
 
 #### Example
 
@@ -195,10 +195,10 @@ Continuing from the previous chapter, assuming our project files are held on a r
      pip install coverage unittest2
 
      # fetch your codebase into your testing environment
-     git clone -b python-test-repo https://github.com/shakedlokits/CodeQuality ${WORKSPACE}/some-project
+     git clone https://github.com/RedHatQE/CodeQuality ${WORKSPACE}/some-project
 
      # run the coverage tests and export the results xml
-     cd ${WORKSPACE}/some-project
+     cd ${WORKSPACE}/some-project/examples/python-test-repo
      coverage run --source . main.py
      coverage xml
     ```
@@ -537,16 +537,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'python-test-repo'
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
                 sh 'dnf install -y python2-devel.x86_64'
                 sh 'pip install coverage unittest2'
             }
         }
         stage('Analyse') {
             steps {
+                dir('examples/python-test-repo') {
                 // run tests with coverage and export results to xml
                 sh 'coverage run --source . main.py'
                 sh 'coverage xml'
+                }
             }
         }
         stage('Report') {
@@ -571,9 +573,9 @@ pipeline {
               sonar.projectKey=test-files_1_0_python_full-analysis
               sonar.projectName=Python Testfiles
               sonar.projectVersion=1.0
-              sonar.sources=${pwd()}
-              sonar.projectBaseDir=${pwd()}
-              sonar.python.coverage.reportPath=coverage.xml
+              sonar.sources=${pwd()}/examples/python-test-repo
+              sonar.projectBaseDir=${pwd()}/examples/python-test-repo
+              sonar.python.coverage.reportPath=${pwd()}/examples/python-test-repo/coverage.xml
               sonar.language=py
               sonar.inclusions=**/*.py
               sonar.exclusions=tests/**/*.py
@@ -585,7 +587,7 @@ pipeline {
               // initite pre-configured sonar scanner tool on project
               // 'slokits_test_env' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
-              withSonarQubeEnv('slokits_test_env') {
+              withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
 
               }
@@ -593,6 +595,7 @@ pipeline {
         }
     }
 }
+
 ```
 
 ### Jenkins Job Builder

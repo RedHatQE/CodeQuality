@@ -178,7 +178,7 @@ you can now find our generated **report.xml** report file in the working directo
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/shakedlokits/CodeQuality/tree/cpp-test-repo](https://github.com/shakedlokits/CodeQuality/tree/cpp-test-repo)**.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository **[https://github.com/RedHatQE/CodeQuality.git](https://github.com/RedHatQE/CodeQuality.git)**.
 
 #### Example
 
@@ -192,7 +192,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
 
 3. on the newly opened screen, set the SCM to git and paste in our repository
 		```plain
-		https://github.com/shakedlokits/CodeQuality/tree/cpp-test-repo
+		https://github.com/RedHatQE/CodeQuality.git
 		```
 
     ![set SCM](./res/jenkins-set-scm.png "set SCM")
@@ -467,7 +467,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'cpp-test-repo'
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
                 sh """dnf install -y gcc-c++ cppunit-devel.x86_64 \
                 cppunit.x86_64 unzip wget python2-devel
                 """
@@ -476,15 +476,17 @@ pipeline {
         }
         stage('Analyse') {
             steps {
+                dir('examples/cpp-test-repo') {
                 // compile test files with coverage and mapping flags
                 sh 'g++ -g --coverage -lcppunit *.cpp -o testcpp'
-
+                
                 // generate runtime coverage metrics report
                 sh './testcpp'
                 sh 'gcov -o $(pwd) -f $(pwd)/main.cpp'
 
                 // aggregate generated reports to xml report
                 sh 'gcovr -r $(pwd) -x --object-directory=$(pwd) > report.xml'
+                }
             }
         }
         stage('Report') {
@@ -493,7 +495,6 @@ pipeline {
               /*
               sonar runner parameters, set sources and baseDir to project home
               =======================
-
               projectKey (string): SonarQube project identification key (unique)
               projectName (string): SonarQube project name (NOT unique)
               projectVersion (string): SonarQube project version (unique)
@@ -509,11 +510,11 @@ pipeline {
               sonar.projectKey=test-files_1_0_cpp_full-analysis
               sonar.projectName=CPP Testfiles
               sonar.projectVersion=1.0
-              sonar.sources=${pwd()}
-              sonar.projectBaseDir=${pwd()}
+              sonar.sources=${pwd()}/examples/cpp-test-repo
+              sonar.projectBaseDir=${pwd()}/examples/cpp-test-repo
               sonar.language=c++
               sonar.inclusions=**/*.cpp
-              sonar.cxx.coverage.reportPath=${pwd()}/report.xml
+              sonar.cxx.coverage.reportPath=${pwd()}/examples/cpp-test-repo/report.xml
               sonar.login=test
               sonar.password=test
               sonar.ws.timeout=180
@@ -522,7 +523,7 @@ pipeline {
               // initite sonar scanner tool on project
               // 'slokits_test_env' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
-              withSonarQubeEnv('slokits_test_env') {
+              withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
 
               }
@@ -596,15 +597,13 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/CodeQuality.git
-          branches:
-            - cpp-test-repo
+          url: https://github.com/RedHatQE/CodeQuality.git
           skip-tag: true
 
     # git polling trigger set to once an hour
     triggers:
       - pollscm:
-          cron: "H */1 * * *"
+          cron: "0 0 * * 0"
           ignore-post-commit-hooks: True
 
     #######################################################
@@ -622,6 +621,7 @@ The following file illustrates a possible JJB configuration
       # coverage tests initialization script
       - shell: |
           # compile test files with coverage and mapping flags
+          cd examples/cpp-test-repo/
           g++ -g --coverage -lcppunit *.cpp -o testcpp
 
           # generate runtime coverage metrics report
@@ -641,8 +641,10 @@ The following file illustrates a possible JJB configuration
       # language (string): project language(ruby)
       # inclusions (string): file inclusion pattern
       # cxx.coverage.reportPath (string): xml coverage report path
+      # login (string): SonarQube server user name
+      # password (string): SonarQube server user password
       - sonar:
-          sonar-name: sonar
+          sonar-name: slokits_test_env_stable
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
@@ -652,6 +654,8 @@ The following file illustrates a possible JJB configuration
             sonar.language=c++
             sonar.inclusions=**/*.cpp
             sonar.cxx.coverage.reportPath=${WORKSPACE}/report.xml
+            sonar.login=test
+            sonar.password=test
             sonar.ws.timeout=180
 
     ########################################################
@@ -667,5 +671,4 @@ The following file illustrates a possible JJB configuration
                 healthy: 0
                 unhealthy: 0
                 failing: 0
-
 ```

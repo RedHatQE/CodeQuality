@@ -10,7 +10,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'cpp-test-repo'
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
                 sh """dnf install -y gcc-c++ cppunit-devel.x86_64 \
                 cppunit.x86_64 unzip wget python2-devel
                 """
@@ -19,15 +19,17 @@ pipeline {
         }
         stage('Analyse') {
             steps {
+                dir('examples/cpp-test-repo') {
                 // compile test files with coverage and mapping flags
                 sh 'g++ -g --coverage -lcppunit *.cpp -o testcpp'
-
+                
                 // generate runtime coverage metrics report
                 sh './testcpp'
                 sh 'gcov -o $(pwd) -f $(pwd)/main.cpp'
 
                 // aggregate generated reports to xml report
                 sh 'gcovr -r $(pwd) -x --object-directory=$(pwd) > report.xml'
+                }
             }
         }
         stage('Report') {
@@ -36,7 +38,6 @@ pipeline {
               /*
               sonar runner parameters, set sources and baseDir to project home
               =======================
-
               projectKey (string): SonarQube project identification key (unique)
               projectName (string): SonarQube project name (NOT unique)
               projectVersion (string): SonarQube project version (unique)
@@ -52,20 +53,20 @@ pipeline {
               sonar.projectKey=test-files_1_0_cpp_full-analysis
               sonar.projectName=CPP Testfiles
               sonar.projectVersion=1.0
-              sonar.sources=${pwd()}
-              sonar.projectBaseDir=${pwd()}
+              sonar.sources=${pwd()}/examples/cpp-test-repo
+              sonar.projectBaseDir=${pwd()}/examples/cpp-test-repo
               sonar.language=c++
               sonar.inclusions=**/*.cpp
-              sonar.cxx.coverage.reportPath=${pwd()}/report.xml
+              sonar.cxx.coverage.reportPath=${pwd()}/examples/cpp-test-repo/report.xml
               sonar.login=test
               sonar.password=test
               sonar.ws.timeout=180
               """
 
               // initite sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
-              withSonarQubeEnv('slokits_test_env') {
+              withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
 
               }
