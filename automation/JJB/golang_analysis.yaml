@@ -99,7 +99,8 @@
                   sonar.language=go
                   sonar.inclusions=**/size.go
                   sonar.exclusions=**/*_test.go
-                  sonar.login=<your_token>
+                  sonar.login=test
+                  sonar.password=test
                   sonar.ws.timeout=180
 
 

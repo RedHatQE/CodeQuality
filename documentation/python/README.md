@@ -280,7 +280,7 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
 
     ```shell
      # projectKey (string): SonarQube project identification key (unique)
-     sonar.projectKey=some-project_coverage_slokits
+     sonar.projectKey=some-project
 
      # projectName (string): SonarQube project name (NOT unique)
      sonar.projectName=Some Project
@@ -347,7 +347,7 @@ As a continuation of the previous examples and assuming our generated coverage r
 
     ```shell
      # projectKey (string): SonarQube project identification key (unique)
-     sonar.projectKey=some-project_coverage_slokits
+     sonar.projectKey=some-project
 
      # projectName (string): SonarQube project name (NOT unique)
      sonar.projectName=Some Project
@@ -389,7 +389,7 @@ As a continuation of the previous examples and assuming our generated coverage r
     ```shell
      sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
          -Dsonar.host.url=http://sonar_server_address\
-         -Dsonar.projectKey=some-project_coverage_slokits\
+         -Dsonar.projectKey=some-project\
          "-Dsonar.projectName=Some Project"\
          -Dsonar.projectVersion=1.0\
          -Dsonar.sources=${WORKSPACE}/some-project\
@@ -409,9 +409,9 @@ As a continuation of the previous examples and assuming our generated coverage r
 
     ```shell
      DEBUG: Upload report
-     DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=34ms
+     DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project&projectName=Some%20Project | time=34ms
      INFO: Analysis report uploaded in 41ms
-     INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project_coverage_slokits
+     INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project
      INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
      INFO: More about the report processing at http://sonar_server_address/api/ce/task?id=AVpaB5_70YnVK7Pmb1mm
      DEBUG: Report metadata written to /some-project/.sonar/report-task.txt
@@ -585,7 +585,7 @@ pipeline {
               """
 
               // initite pre-configured sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
               withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
@@ -702,7 +702,7 @@ The following file illustrates a possible JJB configuration
       # inclusions (string): file inclusion pattern
       # exclusions (string): file exclusion pattern
       - sonar:
-          sonar-name: sonar
+          sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME

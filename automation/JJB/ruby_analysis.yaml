@@ -90,7 +90,7 @@
       # login (string): SonarQube server user name
       # password (string): SonarQube server user password
       - sonar:
-          sonar-name: slokits_test_env_stable
+          sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME

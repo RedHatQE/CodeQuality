@@ -158,50 +158,52 @@ Let's assume you have the following 2 ruby files and an additional Gemfile:
 
 2. run the command `COVERAGE=on ruby main.rb`
 
-    ```python
-	Started
-	F
-	================================================================================================================================================
-	Failure: test_function(TestHello)
-	main.rb:22:in `test_function'
-	     19:
-	     20: class TestHello < Test::Unit::TestCase
-	     21:     def test_function
-	  => 22:         assert_equal("Hello world, it's Bob", hello('Bob'))
-	     23:     end
-	     24: end
-	<"Hello world, it's Bob"> expected but was
-	<"Hello world, i'ts Bob">
+		```python
 
-	diff:
-	? Hello world, i't's Bob
-	================================================================================================================================================
+					Started
+					F
+					==========================================================================================================================================
+					Failure: test_function(TestHello)
+					main.rb:22:in `test_function'
+					     19:
+					     20: class TestHello < Test::Unit::TestCase
+					     21:     def test_function
+					  => 22:         assert_equal("Hello world, it's Bob", hello('Bob'))
+					     23:     end
+					     24: end
+					<"Hello world, it's Bob"> expected but was
+					<"Hello world, i'ts Bob">
+
+					diff:
+					? Hello world, i't's Bob
+					==========================================================================================================================================
 
 
-	Finished in 0.007235294 seconds.
-	------------------------------------------------------------------------------------------------------------------------------------------------
-	1 tests, 1 assertions, 1 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
-	0% passed
-	------------------------------------------------------------------------------------------------------------------------------------------------
-	138.21 tests/s, 138.21 assertions/s
-	Coverage report Rcov style generated for Unit Tests to ruby_coverage_testfiles/coverage/rcov
+					Finished in 0.007235294 seconds.
+					------------------------------------------------------------------------------------------------------------------------------------------------
+					1 tests, 1 assertions, 1 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+					0% passed
+					------------------------------------------------------------------------------------------------------------------------------------------------
+					138.21 tests/s, 138.21 assertions/s
+					Coverage report Rcov style generated for Unit Tests to ruby_coverage_testfiles/coverage/rcov
 
-	COVERAGE:  75.00% -- 3/4 lines in 1 files
+					COVERAGE:  75.00% -- 3/4 lines in 1 files
 
-	+----------+------+-------+--------+---------+
-	| coverage | file | lines | missed | missing |
-	+----------+------+-------+--------+---------+
-	|  75.00%  | a.rb | 4     | 1      | 3       |
-	+----------+------+-------+--------+---------+
-    ```
+					+----------+------+-------+--------+---------+
+					| coverage | file | lines | missed | missing |
+					+----------+------+-------+--------+---------+
+					|  75.00%  | a.rb | 4     | 1      | 3       |
+					+----------+------+-------+--------+---------+
 
-    as you can see, we've encountered an error due to an issue that arised in our tests!
+		```
 
-    _we can see the following indicators:_
+as you can see, we've encountered an error due to an issue that arised in our tests!
 
-    - F - for a failed test
-    - E - for an error occurring during a test
-    - dot(.) - for a successful test  
+_we can see the following indicators:_
+
+  - F - for a failed test
+  - E - for an error occurring during a test
+  - dot(.) - for a successful test  
 
     **Now that we've fixed the problem, you can see our tests running successfully!**
 
@@ -278,7 +280,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
 	gem install bundler
 
 	# install coverage dependencies from Gemfile
-	cd ${WORKSPACE}
+	cd ${WORKSPACE}/examples/ruby-test-repo
 	bundler install
 
 	# run the program with coverage
@@ -314,7 +316,7 @@ For that purpose, we will use the [RubyMetrics plugin for Jenkins](https://wiki.
 
 #### Example
 
-Continuing from the previous section, assuming our newly created job has generated a coverage report into `${WORKSPACE}/coverage/rcov`.
+Continuing from the previous section, assuming our newly created job has generated a coverage report into `${WORKSPACE}/examples/ruby-test-repo/coverage/rcov`.
 
 1. in the job's configuration screen, add a post-build action to publish the Rcov report
 
@@ -323,7 +325,7 @@ Continuing from the previous section, assuming our newly created job has generat
 2. input a relative path to the generated report path and save the job
 
 	```shell
-	coverage/rcov
+	examples/ruby-test-repo/coverage/rcov
 	```
 
 	![configure plugin](./res/jenkins-setup-metrics-plugin.png  "create post-build")
@@ -366,7 +368,7 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
     Now let's have a look at these parameters:
     ```shell
     # projectKey (string): SonarQube project identification key (unique)
-    sonar.projectKey=some-project_coverage_slokits
+    sonar.projectKey=some-project
 
     # projectName (string): SonarQube project name (NOT unique)
     sonar.projectName=Some Project
@@ -430,7 +432,7 @@ As a continuation of the previous examples and assuming our generated coverage r
 
 	```shell
 	# projectKey (string): SonarQube project identification key (unique)
-	sonar.projectKey=some-project_coverage_slokits
+	sonar.projectKey=some-project
 
 	# projectName (string): SonarQube project name (NOT unique)
 	sonar.projectName=Some Project
@@ -469,7 +471,7 @@ As a continuation of the previous examples and assuming our generated coverage r
 	```shell
 	sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
         -Dsonar.host.url=http://sonar_server_address\
-        -Dsonar.projectKey=some-project_coverage_slokits\
+        -Dsonar.projectKey=some-project\
         "-Dsonar.projectName=Some Project"\
         -Dsonar.projectVersion=1.0\
         -Dsonar.sources=${WORKSPACE}\
@@ -488,9 +490,9 @@ As a continuation of the previous examples and assuming our generated coverage r
 
 	```shell
 	DEBUG: Upload report
-	DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=43ms
+	DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project&projectName=Some%20Project | time=43ms
 	INFO: Analysis report uploaded in 52ms
-	INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project_coverage_slokits
+	INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project
 	INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
 	INFO: More about the report processing at http://sonar_server_address/api/ce/task?id=AVrR-YHSEXNZ6r-PQPEx
 	DEBUG: Report metadata written to /root/ruby_coverage_testfiles/.sonar/report-task.txt
@@ -638,7 +640,7 @@ pipeline {
               """
 
               // initite pre-configured sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
               withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
@@ -702,7 +704,7 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/shakedlokits/foreman-deployment
+          url: https://github.com/RedHatQE/foreman-deployment
           skip-tag: true
 
     # git polling trigger set to once an hour

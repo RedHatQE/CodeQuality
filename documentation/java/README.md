@@ -250,6 +250,8 @@ Continuing from the previous chapter, assuming our project files are held on a r
     # install dependencies
     dnf install -y maven
 
+    cd examples/java-test-repo
+
     # run the tests with coverage
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install -Dmaven.test.failure.ignore=true
     ```
@@ -327,7 +329,7 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
     <sonar.host.url>sonar_server_address</sonar.host.url>
 
     <!-- projectKey (string): SonarQube project identification key (unique) -->
-    <sonar.projectKey>maven-test-project_full-analysis_slokits</sonar.projectKey>
+    <sonar.projectKey>maven-test-project_full-analysis</sonar.projectKey>
 
         <!-- inclusions (string): file inclusion pattern, used to exclude non-java files -->
       <sonar.inclusions>**/*.java</sonar.inclusions>
@@ -385,7 +387,7 @@ Sometimes it's useful to be able to publish our coverage report to SonarQube man
     <sonar.host.url>sonar_server_address</sonar.host.url>
 
     <!-- projectKey (string): SonarQube project identification key (unique) -->
-    <sonar.projectKey>maven-test-project_full-analysis_slokits</sonar.projectKey>
+    <sonar.projectKey>maven-test-project_full-analysis</sonar.projectKey>
 
         <!-- inclusions (string): file inclusion pattern, used to exclude non-java files -->
       <sonar.inclusions>**/*.java</sonar.inclusions>
@@ -407,9 +409,9 @@ Sometimes it's useful to be able to publish our coverage report to SonarQube man
 
     ```shell
     DEBUG: Upload report
-    DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project_coverage_slokits&projectName=Some%20Project | time=43ms
+    DEBUG: POST 200 http://sonar_server_address/api/ce/submit?projectKey=some-project&projectName=Some%20Project | time=43ms
     INFO: Analysis report uploaded in 52ms
-    INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project_coverage_slokits
+    INFO: ANALYSIS SUCCESSFUL, you can browse http://sonar_server_address/dashboard/index/some-project
     INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
     INFO: More about the report processing at http://sonar_server_address/api/ce/task?id=AVrR-YHSEXNZ6r-PQPEx
     DEBUG: Report metadata written to /root/ruby_coverage_testfiles/.sonar/report-task.txt
@@ -534,7 +536,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'java-test-repo'
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
                 sh 'dnf install -y maven java-1.8.0-openjdk-devel.x86_64'
             }
         }
@@ -577,10 +579,10 @@ pipeline {
               """
 
               // initite pre-configured sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our configured tool name, see yours
               // in the Jenkins tool configuration
               // NOTE: pay attention we are using maven under sonar env
-              withSonarQubeEnv('slokits_test_env') {
+              withSonarQubeEnv('sonarqube_prod') {
                 sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
 
               }
@@ -691,7 +693,7 @@ The following file illustrates a possible JJB configuration
       # login (string): SonarQube server user name
       # password (string): SonarQube server user password
       - sonar:
-          sonar-name: slokits_test_env_stable
+          sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME

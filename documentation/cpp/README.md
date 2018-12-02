@@ -209,7 +209,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
 	 pip install gcovr
 
 	 # compile test files with coverage and mapping flags
-	 cd ${WORKSPACE}
+	 cd ${WORKSPACE}/examples/cpp-test-repo
 	 g++ -g --coverage -lcppunit *.cpp -o testcpp
 
 	 # generate runtime coverage metrics report
@@ -295,7 +295,7 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
 
 	```shell
 	 # projectKey (string): SonarQube project identification key (unique)
-	 sonar.projectKey=some-project_coverage_slokits
+	 sonar.projectKey=some-project
 
 	 # projectName (string): SonarQube project name (NOT unique)
 	 sonar.projectName=Some Project
@@ -359,7 +359,7 @@ As a continuation of the previous examples and assuming our generated coverage r
 
 	```shell
 		# projectKey (string): SonarQube project identification key (unique)
-		sonar.projectKey=some-project_coverage_slokits
+		sonar.projectKey=some-project
 
 		# projectName (string): SonarQube project name (NOT unique)
 		sonar.projectName=Some Project
@@ -398,7 +398,7 @@ As a continuation of the previous examples and assuming our generated coverage r
     ```shell
 sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
 		-Dsonar.host.url=<sonar-server-url>\
-		-Dsonar.projectKey=some-project_coverage_slokits\
+		-Dsonar.projectKey=some-project\
 		"-Dsonar.projectName=Some Project"\
 		-Dsonar.projectVersion=1.0\
 		-Dsonar.sources=${WORKSPACE}\
@@ -479,7 +479,7 @@ pipeline {
                 dir('examples/cpp-test-repo') {
                 // compile test files with coverage and mapping flags
                 sh 'g++ -g --coverage -lcppunit *.cpp -o testcpp'
-                
+
                 // generate runtime coverage metrics report
                 sh './testcpp'
                 sh 'gcov -o $(pwd) -f $(pwd)/main.cpp'
@@ -521,7 +521,7 @@ pipeline {
               """
 
               // initite sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
               withSonarQubeEnv('sonarqube_prod') {
                 sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
@@ -644,7 +644,7 @@ The following file illustrates a possible JJB configuration
       # login (string): SonarQube server user name
       # password (string): SonarQube server user password
       - sonar:
-          sonar-name: slokits_test_env_stable
+          sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
