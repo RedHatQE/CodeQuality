@@ -1,0 +1,28 @@
+---
+- name: Register and subscribe to RHSM
+  redhat_subscription:
+    state: present
+    username: "{{ rhsm_username }}"
+    password: "{{ rhsm_password }}"
+    auto_attach: true
+
+- name: Disable all RHSM repositories
+  rhsm_repository:
+    name: '*'
+    state: disabled
+
+- name: Enable rhel-7-server-rpms repositories
+  rhsm_repository:
+    name: "{{ item }}"
+    state: enabled
+  with_items:
+    - rhel-7-server-rpms
+    - rhel-7-server-optional-rpms
+
+- name: Install required packages
+  yum:
+    state: present
+    name: "{{ item }}"
+  with_items:
+  - unzip
+  - python-psycopg2

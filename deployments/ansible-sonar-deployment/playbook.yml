@@ -2,14 +2,30 @@
 - hosts: all
   gather_facts: yes
   become: yes
+  vars_prompt:
+  - name: "rhsm_username"
+    prompt: "Enter RHN username"
+    private: no
+  - name: "rhsm_password"
+    prompt: "Enter RHN password"
+    private: yes
   tasks:
+  - name: initialize subscription manager
+    include_tasks: rhel.yml
+    when: ansible_os_family == "RedHat"
+
+  - name: disable security
+    include_tasks: security.yml
+
   - include_role:
       name: geerlingguy.postgresql
     when: sonar == "db"
 
+# we are not using "loop" over the roles to prevent ansible tower bug: https://bugzilla.redhat.com/show_bug.cgi?id=1600124 
   - include_role:
-      name: "{{ item }}"
+      name: geerlingguy.java
     when: sonar == "ui"
-    with_items:
-    - geerlingguy.java
-    - sonar
+
+  - include_role:
+      name: sonar
+    when: sonar == "ui"

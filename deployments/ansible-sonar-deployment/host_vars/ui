@@ -33,3 +33,5 @@ sonar_database_host: "{{ hostvars['db']['ansible_host'] }}"
 # mysqlsql default port is 3306 and the postgres' is 5432
 sonar_database_port: "5432"
 sonar_database_name: sonar
+
+postgresql_user: root
