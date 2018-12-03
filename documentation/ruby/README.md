@@ -252,7 +252,7 @@ _we can see the following indicators:_
 
 ### Automating using the web UI
 
-Continuing from the previous chapter, assuming our project files are held on a remote github repository `[https://github.com/RedHatQE/CodeQuality/tree/master/examples/ruby-test-repo](https://github.com/RedHatQE/CodeQuality/tree/master/examples/ruby-test-repo)`.
+Continuing from the previous chapter, assuming our project files are held on a remote github repository [https://github.com/RedHatQE/CodeQuality/tree/master/examples/ruby-test-repo](https://github.com/RedHatQE/CodeQuality/tree/master/examples/ruby-test-repo).
 
 #### Example
 
@@ -275,23 +275,23 @@ Continuing from the previous chapter, assuming our project files are held on a r
 4. paste the following deployment script onto the bash text editor
 
     ```shell
-	# install dependencies
-	dnf install -y ruby-devel ruby-devel rubygems-devel cmake make gcc
-	gem install bundler
+		# install dependencies
+		dnf install -y ruby-devel ruby-devel rubygems-devel cmake make gcc
+		gem install bundler
 
-	# install coverage dependencies from Gemfile
-	cd ${WORKSPACE}/examples/ruby-test-repo
-	bundler install
+		# install coverage dependencies from Gemfile
+		cd ${WORKSPACE}/examples/ruby-test-repo
+		bundler install
 
-	# run the program with coverage
-	COVERAGE=on ruby main.rb
+		# run the program with coverage
+		COVERAGE=on ruby main.rb
     ```
 
-		> ⚔ Note: we are using Fedora v23+, if you are using a older version or a different redhat distribution, you might want to try 'yum' instead of 'dnf'
+	> ⚔ Note: we are using Fedora v23+, if you are using a older version or a different redhat distribution, you might want to try 'yum' instead of 'dnf'
 
-    > ⚔ Note: the **-y** parameter in the dnf command approves installation prompts which is mandatory for automation purposes.  
+  > ⚔ Note: the **-y** parameter in the dnf command approves installation prompts which is mandatory for automation purposes.  
 
-    > ⚔ Note: the **${WORKSPACE}** environment variable is used by Jenkins in order to point to the current build's working directory
+  > ⚔ Note: the **${WORKSPACE}** environment variable is used by Jenkins in order to point to the current build's working directory
 
     ![input your script](./res/jenkins-setup-bash-script.png "paste your script")
 
@@ -552,7 +552,8 @@ You should now have a `.resultset.yml` report file in your `{report_directory}` 
 > ```ruby merger.rb {coverage_directory1} {coverage_directory1} ```
 
 > 🎉 **Bonus:** If you wish to cover the same command repeatedly, use a different name for the analysis using the `RUBY_COVERAGE_NAME` environment, [You could then use the merger.rb tool](https://github.com/RedHatQE/CodeQuality/blob/master/tooling/merger.rb) to unify the result hits
-> ```bash
+
+```bash
 # run the tests with different identifiers
 RUBY_COVERAGE_NAME=first_run RUBY_COVERAGE_CONFIG=/config.yml ruby app.rb
 RUBY_COVERAGE_NAME=second_run RUBY_COVERAGE_CONFIG=/config.yml ruby app.rb
@@ -745,7 +746,7 @@ The following file illustrates a possible JJB configuration
       # inclusions (string): file inclusion pattern
       # exclusions (string): file exclusion pattern
       - sonar:
-          sonar-name: sonar
+          sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME

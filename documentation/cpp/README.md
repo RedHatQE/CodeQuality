@@ -73,9 +73,9 @@ This document is separated into 3 parts:
 4. aggregate generated file coverage report into a single project coverage XML report using **gcovr**
 `gcovr -r <source files root directory> -x --object-directory=<gcov reports directory> > report.xml`
 
-		> ⚔ Note: we included the **-r** flag to signify the following path is the **root** path and the **-x** flag to indicate the expected output is XML.
+	> ⚔ Note: we included the **-r** flag to signify the following path is the **root** path and the **-x** flag to indicate the expected output is XML.
 
-    > ⚔ Note: The generated report will be in [Cobertura](http://cobertura.github.io/cobertura/) format as **required**, in order to be processed by SonarQube.
+  > ⚔ Note: The generated report will be in [Cobertura](http://cobertura.github.io/cobertura/) format as **required**, in order to be processed by SonarQube.
 
 #### Example
 
@@ -293,7 +293,7 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
 
     Now let's have a look at these parameters:
 
-	```shell
+	 ```shell
 	 # projectKey (string): SonarQube project identification key (unique)
 	 sonar.projectKey=some-project
 
@@ -320,9 +320,9 @@ As a direct continuation of the previous chapter, building on the same Jenkins j
 
 	 # ws.timeout (int): optional connection timeout parameter
 	 sonar.ws.timeout=180
-	   ```
+	 ```
 
-    > ⚔ Note: for further details on SonarQube analysis parameters, see [Analysis Parameters](https://docs.sonarqube.org/display/SONAR/Analysis+Parameters).
+ > ⚔ Note: for further details on SonarQube analysis parameters, see [Analysis Parameters](https://docs.sonarqube.org/display/SONAR/Analysis+Parameters).
 
 3. run a build again to view the reported results
 
@@ -357,7 +357,7 @@ As a continuation of the previous examples and assuming our generated coverage r
 
 2. now, in addition to our previous scanning parameters while publishing to sonar through the Jenkins UI:
 
-	```shell
+	  ```shell
 		# projectKey (string): SonarQube project identification key (unique)
 		sonar.projectKey=some-project
 
@@ -386,17 +386,17 @@ As a continuation of the previous examples and assuming our generated coverage r
 		sonar.ws.timeout=180
 		```
 
-    we will now also include the SonarServer URL, in this example we are using the CentralCI test-lab instance:
+ we will now also include the SonarServer URL, in this example we are using the CentralCI test-lab instance:
 
     ```shell
      # host.url (string): the URL pointing to the SonarServer instance
      sonar.host.url=<sonar-server-url>
     ```
 
-    all together, our final command should look as follows:
+ all together, our final command should look as follows:
 
     ```shell
-sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
+    sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
 		-Dsonar.host.url=<sonar-server-url>\
 		-Dsonar.projectKey=some-project\
 		"-Dsonar.projectName=Some Project"\
@@ -432,7 +432,7 @@ sonar-scanner-2.6-SNAPSHOT/bin/sonar-scanner -X -e\
 		INFO: ------------------------------------------------------------------------
     ```
 
-    **and your results have been published! (:**
+  **and your results have been published! (:**
 
 --------------------------------------------------------------------------------
 
