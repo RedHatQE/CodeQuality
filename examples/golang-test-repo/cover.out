@@ -1,0 +1,8 @@
+mode: set
+github.com/CodeQuality/examples/golang-test-repo/size.go:3.25,4.12 1 1
+github.com/CodeQuality/examples/golang-test-repo/size.go:16.5,16.22 1 0
+github.com/CodeQuality/examples/golang-test-repo/size.go:5.16,6.26 1 1
+github.com/CodeQuality/examples/golang-test-repo/size.go:7.17,8.22 1 1
+github.com/CodeQuality/examples/golang-test-repo/size.go:9.17,10.23 1 1
+github.com/CodeQuality/examples/golang-test-repo/size.go:11.18,12.21 1 1
+github.com/CodeQuality/examples/golang-test-repo/size.go:13.19,14.22 1 1
