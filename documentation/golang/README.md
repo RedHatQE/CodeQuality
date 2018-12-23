@@ -680,13 +680,19 @@ published coverage report dashboard such as this one:
 
 # Code Coverage with integration tests
 
+The documents I have relied on in creating this sub-chapter:
+
+[Getting Code Coverage from External Testing](https://husobee.github.io/golang/test/coverage/2015/11/17/external-test-coverage.html)
+
+[Generating Coverage Profiles for Golang Integration Tests](https://www.cyphar.com/blog/post/20170412-golang-integration-coverage)
+
 ## Unit Tests and Coverage
 
-As a continuation of what was explained above, the general idea is that you call "go test" on a particular package and the unit tests in that package are executed. In effect "go test" is a modified compilation pipeline that adds all of the code that runs unit tests (and rather than executing your main.main function it runs the go test code). Unit tests are stored in source files that have names ending with _test.go (which are not compiled normally).
+As a continuation of what was explained above, the general idea is that you call "go test" on a particular package and the unit tests in that package are executed. In effect "go test" is a modified compilation pipeline that adds all of the code that runs unit tests (and rather than executing your main.main function it runs the "go test" code). Unit tests are stored in source files that have names ending with _test.go (which are not compiled normally).
 
-Additionally, you can get this special “test binary” if you pass -c -o <file> to go test, allowing you to run the tests separately (without recompiling the source code each time). Note that the test binary will only include the tests in the package that you explicitly state in the package line (imported packages won’t have their tests run implicitly).
+Additionally, you can get this special “test binary” if you pass -c -o <file> to "go test", allowing you to run the tests separately (without recompiling the source code each time). Note that the test binary will only include the tests in the package that you explicitly state in the package line (imported packages won’t have their tests run implicitly).
 
-As explained above, when you pass -cover to go test the compiler will add a bunch of instrumentation to your source code to count how often a line of code was executed. So if we want coverage on integration tests we will have to recompile the source code with cover flags. Unfortunately it’s not (easily) possible to get this cover tool to generate such instrumentation using "go build". So if you want code coverage you need to use "go test".
+As explained above, when you pass -cover to "go test", the compiler will add a bunch of instrumentation to your source code to count how often a line of code was executed. So if we want coverage on integration tests we will have to recompile the source code with cover flags. Unfortunately it’s not (easily) possible to get this cover tool to generate such instrumentation using "go build". So if you want code coverage you need to use "go test".
 
 ### Turning main Into a Test
 
@@ -696,7 +702,7 @@ Since we can compile a test binary and execute it, the obvious solution to havin
 
     # the -c flag tells the test tool to compile by name
     # and the -o flag tells the test tool to just output
-    # the executable created from the go tests, instead of running
+    # the executable created from the "go test", instead of running
     go test -c main.go main_test.go -o test-able-exe
     # armed with this, lets actually build in the coverage magic
     go test -coverprofile=main_cover.out -c main.go main_test.go -o test-able-exe
@@ -753,7 +759,7 @@ Create a main.go file like this:
     )
 
     // runMain - entry-point to perform external testing of service, this is 
-    // where go test will enter main.  we have to setup test mode in here, as 
+    // where "go test" will enter main.  we have to setup test mode in here, as 
     // well as the stop channel so we can stop the service
     func runMain() {
             // start the stop channel
@@ -845,7 +851,7 @@ Option 1:
 
 Option 2:
 
-    # or all condensed using go test as follows:
+    # or all condensed using "go test" as follows:
     go test -coverprofile=main_cover.out -run=TestMain
 
 Run the tests and stop the http server:
@@ -911,7 +917,7 @@ project whose folder tree looks something like this:
 Since you probably also run unit tests (size_test.go), you might want
 to merge the coverage profiles with [gocovmerge](https://github.com/wadey/gocovmerge)
 
-[gocovmerge](https://github.com/wadey/gocovmerge) - gocovmerge takes the results from multiple go test -coverprofile runs and merges them into one profile.
+[gocovmerge](https://github.com/wadey/gocovmerge) - gocovmerge takes the results from multiple "go test -coverprofile" runs and merges them into one profile.
 
 
     # Install gocovmerge
