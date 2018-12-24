@@ -677,6 +677,276 @@ published coverage report dashboard such as this one:
          }
       }
 
+
+# Code Coverage with integration tests
+
+The documents I have relied on in creating this sub-chapter:
+
+[Getting Code Coverage from External Testing](https://husobee.github.io/golang/test/coverage/2015/11/17/external-test-coverage.html)
+
+[Generating Coverage Profiles for Golang Integration Tests](https://www.cyphar.com/blog/post/20170412-golang-integration-coverage)
+
+## Unit Tests and Coverage
+
+As a continuation of what was explained above, the general idea is that you call "go test" on a particular package and the unit tests in that package are executed. In effect "go test" is a modified compilation pipeline that adds all of the code that runs unit tests (and rather than executing your main.main function it runs the "go test" code). Unit tests are stored in source files that have names ending with _test.go (which are not compiled normally).
+
+Additionally, you can get this special “test binary” if you pass -c -o <file> to "go test", allowing you to run the tests separately (without recompiling the source code each time). Note that the test binary will only include the tests in the package that you explicitly state in the package line (imported packages won’t have their tests run implicitly).
+
+As explained above, when you pass -cover to "go test", the compiler will add a bunch of instrumentation to your source code to count how often a line of code was executed. So if we want coverage on integration tests we will have to recompile the source code with cover flags. Unfortunately it’s not (easily) possible to get this cover tool to generate such instrumentation using "go build". So if you want code coverage you need to use "go test".
+
+### Turning main Into a Test
+
+Since we can compile a test binary and execute it, the obvious solution to having coverage profiles for your “real binary” would be to just create a main_test.go file in your main package that runs your main function (see example below).
+
+### Make an executable test file
+
+    # the -c flag tells the test tool to compile by name
+    # and the -o flag tells the test tool to just output
+    # the executable created from the "go test", instead of running
+    go test -c main.go main_test.go -o test-able-exe
+    # armed with this, lets actually build in the coverage magic
+    go test -coverprofile=main_cover.out -c main.go main_test.go -o test-able-exe
+
+Basically this is the solution we need because once we run the compiled test file it's as if we ran the old code plus the possibility of tests with coverage. This is great!
+
+## Integration test example
+
+Now lets make a running http server that will collect this code coverage
+telemetry. Below is the main.go I have created to accomplish this, with comments
+inline explaining what is going on.
+
+The server we create will respond to GET requests and will be able to run tests using POST request. In the end we can run the server as a regular code and the service will work as usual and in addition we can run the same code in a test mode in order to get the code coverage as we wanted.
+
+### Install dependencies
+ 
+
+    go get github.com/codegangsta/negroni
+    go get github.com/husobee/vestigo
+    go get github.com/tylerb/graceful
+
+[negroni](https://github.com/urfave/negroni) - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
+
+[vestigo](https://github.com/husobee/vestigo) - Vestigo is a stand alone url router which has respectable performance that passes URL parameters to handlers by embedding them into the request's Form. 
+
+[graceful](https://github.com/tylerb/graceful) - Graceful is a Go package enabling us to turn the http.Handler server off at will within the code. This is super handy for us because we want to be able to end our test, in order for go's testing framework to report the coverage (no good if the service is interrupted or canceled or terms).
+
+Create a main.go file like this:
+
+    package main
+
+    import (
+            "fmt"
+            "net/http"
+            "time"
+
+            "github.com/codegangsta/negroni"
+            "github.com/husobee/vestigo"
+            "github.com/tylerb/graceful"
+    )
+
+    var ( 
+            // "srv" is the graceful server
+            srv = &graceful.Server{
+                    Timeout: 5 * time.Second,
+            } 
+            // "stop" is a channel that tells the service to stop.  As seen
+            // later we will make a highly destructive deathblow endpoint
+            // so that in test we can conclude the test and turn the service off.
+            stop     chan bool
+            // testMode is a bool that allows for deathpunch endpoint to exist or 
+            // not exist... we don't want that running in production ;)
+            testMode bool = false
+    )
+
+    // runMain - entry-point to perform external testing of service, this is 
+    // where "go test" will enter main.  we have to setup test mode in here, as 
+    // well as the stop channel so we can stop the service
+    func runMain() {
+            // start the stop channel
+            stop = make(chan bool)
+            // put the service in "testMode"
+            testMode = true
+            // run the main entry point
+            go main()
+            // watch for the stop channel
+            <-stop
+            // stop the graceful server
+            srv.Stop(5 * time.Second)
+    }
+    
+    // main - main entry point
+    func main() {
+            // setup middlware stack
+            n := negroni.Classic()
+
+            // setup routes
+            router := vestigo.NewRouter()
+
+            // endpoints
+            router.Post("/test", func(w http.ResponseWriter, r *http.Request) {
+                    if false {
+                            // we should see this endpoint not covered
+                            // if we hit the /test endpoint externally
+                            fmt.Println("totally never getting here")
+                    }
+                    w.WriteHeader(200)
+                    w.Write([]byte("done"))
+            })
+
+            // endpoints
+            router.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
+                fmt.Fprintf(w, "Hey, This line was covered too")
+            })
+
+            // all of the above is basic boring service setup stuff.
+
+            // only if we are in testMode should we attempt to add the death blow
+            if testMode {
+                    // death blow endpoint - endpoint that will stop the service if stop is
+                    // a live channel (only live if started from runMain function)
+                    router.Post("/deathblow", func(w http.ResponseWriter, r *http.Request) {
+                            // end the graceful server if being run from runMain()
+                            stop <- true
+                    })
+            }
+
+            // add our router to negroni
+            n.UseHandler(router)
+
+            // graceful start/stop server
+            srv.Server = &http.Server{Addr: ":3456", Handler: n}
+            // serve http
+            srv.ListenAndServe()
+    }
+
+
+## The Test!
+
+Armed with the above design, you can already see what the test will look like,
+basically a “TestMain” function that kicks off runMain(). The normal go build
+command will never run runMain() and thereby not setup the deathblow endpoint
+that kills the service. Below is our super easy test:
+
+Create a main_test.go file like this:
+
+    package main
+
+    import (
+            "testing"
+    )
+
+    // TestMain - test to drive external testing coverage
+    func TestMain(t *testing.T) {
+            runMain()
+    }
+
+Pretty simple! Our new commands to build a coverage enabled executable are as follows:
+
+Option 1:
+
+    # Create a test binary with coverage flag instead of the original main file.
+    go test -coverprofile=main_cover.out -c main.go main_test.go -o test-able-exe
+    # Run the test and specify the coverage output file
+    ./test-able-exe -test.coverprofile=main_cover.out -test.v -test.run=TestMain
+
+Option 2:
+
+    # or all condensed using "go test" as follows:
+    go test -coverprofile=main_cover.out -run=TestMain
+
+Run the tests and stop the http server:
+
+    # In another terminal run these three curl statements:
+    curl -XPOST http://127.0.0.1:3456/test
+    curl http://127.0.0.1:3456/hello
+    curl -XPOST http://127.0.0.1:3456/deathblow
+    
+ More detailed report:   
+    
+    # we can then feel the coverage into the go cover tool to get various outputs:
+    go tool cover -func=main_cover.out
+    _/home/user/go_coverage/main/main.go:22:       runMain         100.0%
+    _/home/user/go_coverage/main/main.go:35:       main            92.3%
+    total:                          (statements)    94.4%
+
+The priority for "Option 1" is that we do not have to recompile the whole code each time whenever we want to run tests, but the priority for "Option 2" is when we want to Merge all the reports (in case it is one report from a large project), it is much more convenient because in this option, the path in the report file refers to the entire project, not just to the binary file (Of course you can edit the reporting file in the first option so that it will relate the whole project as we want).
+
+main_cover.out file with "Option 1":
+
+    mode: set
+    command-line-arguments/main.go:34.16,45.2 5 1
+    command-line-arguments/main.go:48.13,56.75 3 1
+    command-line-arguments/main.go:68.9,68.21 1 1
+    command-line-arguments/main.go:78.9,83.29 3 1
+    command-line-arguments/main.go:56.75,57.26 1 1
+    command-line-arguments/main.go:62.17,63.40 2 1
+    command-line-arguments/main.go:57.26,61.18 1 0
+    command-line-arguments/main.go:68.21,71.88 1 1
+    command-line-arguments/main.go:71.88,74.18 1 1
+
+main_cover.out file with "Option 2":
+
+    mode: set
+    _/home/user/go_coverage/main/main.go:34.16,45.2 5 1
+    _/home/user/go_coverage/main/main.go:48.13,56.75 3 1
+    _/home/user/go_coverage/main/main.go:68.9,68.21 1 1
+    _/home/user/go_coverage/main/main.go:78.9,83.29 3 1
+    _/home/user/go_coverage/main/main.go:56.75,57.26 1 0
+    _/home/user/go_coverage/main/main.go:62.17,63.40 2 0
+    _/home/user/go_coverage/main/main.go:57.26,61.18 1 0
+    _/home/user/go_coverage/main/main.go:68.21,71.88 1 1
+    _/home/user/go_coverage/main/main.go:71.88,74.18 1 1
+
+## Merge Coverage Profiles
+
+Suppose all the examples on this page are part of an "go_coverage" entire
+project whose folder tree looks something like this:
+
+    .
+    ├── main
+    │   ├── main_cover.out
+    │   ├── main.go
+    │   ├── main_test.go
+    │   └── test-able-exe
+    └── size
+        ├── size_cover.out
+        ├── size.go
+        └── size_test.go
+
+
+Since you probably also run unit tests (size_test.go), you might want
+to merge the coverage profiles with [gocovmerge](https://github.com/wadey/gocovmerge)
+
+[gocovmerge](https://github.com/wadey/gocovmerge) - gocovmerge takes the results from multiple "go test -coverprofile" runs and merges them into one profile.
+
+
+    # Install gocovmerge
+    $ go get github.com/wadey/gocovmerge
+    # Gather all coverage profiles. Run this under root project folder
+    $ gocovmerge main/main_cover.out size/size_cover.out > all_cover.out
+    # View the final profile on browser
+    $ go tool cover -html all_cover.out
+
+Or you can push all_cover.out file to the SonarQube server using a similar file
+in your project root folder:
+
+    sonar.projectKey=go_integration_tests
+    sonar.projectName=go-integ-tests
+    sonar.projectVersion=1.0
+    sonar.sources=.
+    sonar.projectBaseDir=.
+    sonar.go.coverage.reportPaths=all_cover.out
+    sonar.language=go
+    sonar.inclusions=**/*.go
+    sonar.exclusions=**/*_test.go
+    sonar.login=<user>
+    sonar.password=<password>
+    sonar.ws.timeout=180
+    sonar.host.url=<sonar_url>
+
+
+Have fun!!
+
 ------------------------------------------------------------------------------
 
 [1]: https://blog.golang.org/cover
