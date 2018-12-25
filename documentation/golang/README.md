@@ -680,21 +680,19 @@ published coverage report dashboard such as this one:
 
 # Code Coverage with integration tests
 
-The excellent documents I have relied on and used them in creating this sub-chapter:
+Reference blogs:
 
 [Getting Code Coverage from External Testing](https://husobee.github.io/golang/test/coverage/2015/11/17/external-test-coverage.html)
 
 [Generating Coverage Profiles for Golang Integration Tests](https://www.cyphar.com/blog/post/20170412-golang-integration-coverage)
 
-## Unit Tests and Coverage
+## Preparation
 
-As a continuation of what was explained above, the general idea of Unit Test is that once you run a "go test" then all your software is reloaded by your tests and basically the main.go file does not run in the background but what runs is main_test.go and it compiles and runs the main it creates.
+As a continuation of what was explained above, the general idea of executing unit tests is that once you run "go test", all your software is recompiled, along with the tests, and the tests in the main_test.go are executed.
 
-For this purpose we can create a compiled file of the tests (by passing -c -o <file> to "go test") without actually running the main.go file, and using only that without re-compiling the source code.
+For our purpose, we can create a compiled file containing the instrumentation needed for code coverage (by passing -c -o <file> to "go test") without actually running the main.go file, and using only that without re-compiling the source code. It is important to note, that the only way golang allows you to to obtain code coverage is by running "go test" rather than running "go build", because code coverage belongs only to the "world" of tests. 
 
-If we continue in the same direction we can compile a test file (which runs our source code of course) in such a way that it will also allow reporting of code coverage at the end of the test runs. It is important to note, as part of the Golang rules, that the only way to obtain code coverage is by running "go test" rather than running "go build", because code coverage belongs only to the "world" of tests. 
-
-So we'll just create a test file that all it does is "run main.go file". After we compile it we will get the same older code only with the addition of code coverage at the end of its run (see example below).
+To compile it with code coverage instrumentation, we'll create a test file that does nothing other than "run main.go file". After we compile it we will get the same older code only with the ability to use it for generating code coverage statistics at the end of its run (see example below).
 
 ### Make an executable test file
 
@@ -707,7 +705,7 @@ So we'll just create a test file that all it does is "run main.go file". After w
 
 ## Integration test example
 
-Now lets make a running http server to illustrate this. The server we create will respond to GET requests and Will allow POST request. In the end we can run the server as a regular code and the service will work as usual and in addition we can run the same code in a test mode in order to get the code coverage as we wanted.
+Now lets make a running http server to illustrate this. The server we create will respond to GET requests and Will allow POST requests. In the end we can run the server as a regular code and the service will work as usual and in addition we can run the same code in a test mode in order to get the code coverage statistics that we wanted.
 
 The most important part is how the main.go "knows" when it runs normally and when it runs through the tests. For this purpose we will create a function inside main.go that will run only when we run the test file and that function will run the main.
 
@@ -854,7 +852,7 @@ Run the tests and stop the http server:
     _/home/user/go_coverage/main/main.go:43:       main            93.3%
     total:                          (statements)    95.0%
 
-The priority for "Option 1" is that we do not have to recompile the whole code each time whenever we want to run tests, but the priority for "Option 2" is when we want to Merge all the reports (in case it is one report from a large project), it is much more convenient because in this option, the path in the report file refers to the entire project, not just to the binary file (Of course you can edit the reporting file in the first option so that it will relate the whole project as we want).
+The advantage for "Option 1" is that we do not have to recompile the whole code each time whenever we want to run tests, but the advantage for "Option 2" is when we want to Merge all the reports (in case it is one report from a large project), it is much more convenient because the path in the report file refers to the entire project, not just to the binary file (Of course you can edit the reporting file in the first option so that it will relate the whole project as we want).
 
 main_cover.out file with "Option 1":
 
