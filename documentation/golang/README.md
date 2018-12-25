@@ -688,11 +688,21 @@ Reference blogs:
 
 ## Preparation
 
-As a continuation of what was explained above, the general idea of executing unit tests is that once you run "go test", all your software is recompiled, along with the tests, and the tests in the main_test.go are executed.
+As a continuation of what was explained above, the general idea of executing
+unit tests is that once you run "go test", all your software is recompiled,
+along with the tests, and the tests in the main_test.go are executed.
 
-For our purpose, we can create a compiled file containing the instrumentation needed for code coverage (by passing -c -o <file> to "go test") without actually running the main.go file, and using only that without re-compiling the source code. It is important to note, that the only way golang allows you to to obtain code coverage is by running "go test" rather than running "go build", because code coverage belongs only to the "world" of tests. 
+For our purpose, we can create a compiled file containing the instrumentation
+needed for code coverage (by passing -c -o <file> to "go test") without
+actually running the main.go file, and using only that without re-compiling
+the source code. It is important to note, that the only way golang allows
+you to to obtain code coverage is by running "go test" rather than running
+"go build", because code coverage belongs only to the "world" of tests.
 
-To compile it with code coverage instrumentation, we'll create a test file that does nothing other than "run main.go file". After we compile it we will get the same older code only with the ability to use it for generating code coverage statistics at the end of its run (see example below).
+To compile it with code coverage instrumentation, we'll create a test file
+that does nothing other than "run main.go file". After we compile it we will
+get the same older code only with the ability to use it for generating code
+coverage statistics at the end of its run (see example below).
 
 ### Make an executable test file
 
@@ -705,9 +715,16 @@ To compile it with code coverage instrumentation, we'll create a test file that 
 
 ## Integration test example
 
-Now lets make a running http server to illustrate this. The server we create will respond to GET requests and Will allow POST requests. In the end we can run the server as a regular code and the service will work as usual and in addition we can run the same code in a test mode in order to get the code coverage statistics that we wanted.
+Now lets make a running http server to illustrate this. The server we create
+will respond to GET requests and Will allow POST requests. In the end we can
+run the server as a regular code and the service will work as usual and in
+addition we can run the same code in a test mode in order to get the code
+coverage statistics that we wanted.
 
-The most important part is how the main.go "knows" when it runs normally and when it runs through the tests. For this purpose we will create a function inside main.go that will run only when we run the test file and that function will run the main.
+The most important part is how the main.go "knows" when it runs normally and
+when it runs through the tests. For this purpose we will create a function
+inside main.go that will run only when we run the test file and that function
+will run the main.
 
 ### Install dependencies
  
@@ -716,11 +733,17 @@ The most important part is how the main.go "knows" when it runs normally and whe
     go get github.com/husobee/vestigo
     go get github.com/tylerb/graceful
 
-[negroni](https://github.com/urfave/negroni) - Negroni is an idiomatic approach to web middleware in Go. It is tiny, non-intrusive, and encourages use of net/http Handlers.
+[negroni](https://github.com/urfave/negroni) - Negroni is an idiomatic approach to web middleware in Go.
+It is tiny, non-intrusive, and encourages use of net/http Handlers.
 
-[vestigo](https://github.com/husobee/vestigo) - Vestigo is a stand alone url router which has respectable performance that passes URL parameters to handlers by embedding them into the request's Form. 
+[vestigo](https://github.com/husobee/vestigo) - Vestigo is a stand alone url router which has respectable
+performance that passes URL parameters to handlers by embedding them into
+the request's Form.
 
-[graceful](https://github.com/tylerb/graceful) - Graceful is a Go package enabling us to turn the http.Handler server off at will within the code. This is super handy for us because we want to be able to end our test, in order for go's testing framework to report the coverage (no good if the service is interrupted or canceled or terms).
+[graceful](https://github.com/tylerb/graceful) - Graceful is a Go package enabling us to turn the http.Handler server
+off at will within the code. This is super handy for us because we want to be
+able to end our test, in order for go's testing framework to report the
+coverage (no good if the service is interrupted or canceled or terms).
 
 Create a main.go file like this:
 
@@ -808,7 +831,9 @@ Create a main.go file like this:
 
 ## The main_test.go file!
 
-Now we will create a simple test file that run the main function. As explained above, if we run the main.go using "go build" then mainFromTest function will never run.
+Now we will create a simple test file that run the main function. As explained
+above, if we run the main.go using "go build" then mainFromTest function will
+never run.
 
 Create a main_test.go file like this:
 
@@ -823,7 +848,8 @@ Create a main_test.go file like this:
             mainFromTest()
     }
 
-We're almost done! Now we have to run main() along with the option to cover the code. We have 2 options to do this:
+We're almost done! Now we have to run main() along with the option to cover the
+code. We have 2 options to do this:
 
 Option 1:
 
@@ -852,7 +878,13 @@ Run the tests and stop the http server:
     _/home/user/go_coverage/main/main.go:43:       main            93.3%
     total:                          (statements)    95.0%
 
-The advantage for "Option 1" is that we do not have to recompile the whole code each time whenever we want to run tests, but the advantage for "Option 2" is when we want to Merge all the reports (in case it is one report from a large project), it is much more convenient because the path in the report file refers to the entire project, not just to the binary file (Of course you can edit the reporting file in the first option so that it will relate the whole project as we want).
+The advantage for "Option 1" is that we do not have to recompile the whole
+code each time whenever we want to run tests, but the advantage for
+"Option 2" is when we want to Merge all the reports (in case it is one report
+from a large project), it is much more convenient because the path in the
+report file refers to the entire project, not just to the binary file (Of
+course you can edit the reporting file in the first option so that it will
+relate the whole project as we want).
 
 main_cover.out file with "Option 1":
 
@@ -900,7 +932,8 @@ project whose folder tree looks something like this:
 Since you probably also run unit tests (size_test.go), you might want
 to merge the coverage profiles with [gocovmerge](https://github.com/wadey/gocovmerge)
 
-[gocovmerge](https://github.com/wadey/gocovmerge) - gocovmerge takes the results from multiple "go test -coverprofile" runs and merges them into one profile.
+[gocovmerge](https://github.com/wadey/gocovmerge) - gocovmerge takes the results from multiple
+"go test -coverprofile" runs and merges them into one profile.
 
 
     # Install gocovmerge
