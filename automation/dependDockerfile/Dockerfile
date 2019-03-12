@@ -42,9 +42,6 @@ ENV PATH="/gocode/bin:$PATH"
 RUN yum install -y golang \
  && mkdir -p gocode/src/github.com/ \
  && cp -r /CodeQuality/examples/golang-test-repo/ gocode/src/github.com/ \
- && cd gocode/src/github.com/ \
- && export PATH=/gocode/bin:$PATH \
- && export GOPATH=/gocode \
  && go get github.com/axw/gocov/gocov \
  && go get github.com/AlekSi/gocov-xml
                            
