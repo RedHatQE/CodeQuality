@@ -18,10 +18,9 @@ RUN yum makecache \
  && keytool -importcert -noprompt -alias Eng-CA -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit -file Eng-CA.der
 ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
 # General requirements                                                          
-RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+RUN yum install -y epel-release \
  && yum install -y gcc python-devel \
- && curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" \
- && python get-pip.py \
+ && yum install -y python-pip \
  && yum install -y git \
  && git clone --depth 1 https://github.com/RedHatQE/CodeQuality
                            
@@ -30,15 +29,16 @@ RUN yum install -y python-devel.x86_64 \
  && pip install coverage unittest2
                                                                                 
 # CPP requirements
-RUN yum install -y gcc-c++ cppunit-devel.x86_64 cppunit.x86_64 unzip wget python-devel \
+RUN yum install -y gcc-c++ cppunit-devel.x86_64 cppunit.x86_64 unzip \
+    wget python-devel \
  && pip install gcovr
 
 # Java requirements                                                             
 RUN yum install -y maven 
 
-ENV GOPATH="/gocode" PATH="~/.rbenv/versions/2.3.0/bin:/gocode/bin:$PATH"
-
 # Golang requirements
+ENV GOPATH="/gocode"
+ENV PATH="/gocode/bin:$PATH"
 RUN yum install -y golang \
  && mkdir -p gocode/src/github.com/ \
  && cp -r /CodeQuality/examples/golang-test-repo/ gocode/src/github.com/ \
@@ -49,6 +49,7 @@ RUN yum install -y golang \
  && go get github.com/AlekSi/gocov-xml
                            
 # Ruby requirements
+ENV PATH="~/.rbenv/versions/2.3.0/bin:$PATH"
 RUN yum install -y ruby-devel rubygems-devel cmake make gcc \
  && yum install -y openssl-devel readline-devel zlib-devel \
  && git clone --depth 1 https://github.com/rbenv/rbenv.git ~/.rbenv \
@@ -56,5 +57,4 @@ RUN yum install -y ruby-devel rubygems-devel cmake make gcc \
  && git clone --depth 1 https://github.com/rbenv/ruby-build.git \
  && PREFIX=/usr/local ./ruby-build/install.sh \
  && ~/.rbenv/bin/rbenv install 2.3.0 \
- && export PATH=~/.rbenv/versions/2.3.0/bin:$PATH \
  && gem install bundler
