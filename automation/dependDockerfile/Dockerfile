@@ -22,7 +22,6 @@ RUN yum install -y epel-release \
  && yum install -y gcc python-devel \
  && yum install -y python-pip \
  && yum install -y git \
- && git clone --depth 1 https://github.com/RedHatQE/CodeQuality
                            
 # Python requirements                                                           
 RUN yum install -y python-devel.x86_64 \
@@ -41,7 +40,6 @@ ENV GOPATH="/gocode"
 ENV PATH="/gocode/bin:$PATH"
 RUN yum install -y golang \
  && mkdir -p gocode/src/github.com/ \
- && cp -r /CodeQuality/examples/golang-test-repo/ gocode/src/github.com/ \
  && go get github.com/axw/gocov/gocov \
  && go get github.com/AlekSi/gocov-xml
                            
