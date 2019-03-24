@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -9,12 +9,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh """dnf install -y gcc-c++ cppunit-devel.x86_64 \
-                cppunit.x86_64 unzip wget python2-devel
-                """
-                sh 'pip install gcovr'
             }
         }
         stage('Analyse') {

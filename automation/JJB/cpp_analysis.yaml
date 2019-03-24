@@ -36,7 +36,7 @@
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -59,12 +59,6 @@
     #######################################################
 
     builders:
-
-      # project deployment script goes here
-      - shell: |
-          dnf install -y gcc-c++ cppunit-devel.x86_64 \
-            cppunit.x86_64 unzip wget python-devel
-          pip install gcovr
 
       # coverage tests initialization script
       - shell: |

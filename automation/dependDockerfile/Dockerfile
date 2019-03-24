@@ -36,20 +36,22 @@ RUN yum install -y gcc-c++ cppunit-devel.x86_64 cppunit.x86_64 unzip \
 RUN yum install -y maven 
 
 # Golang requirements
-ENV GOPATH="/gocode"
-ENV PATH="/gocode/bin:$PATH"
-RUN yum install -y golang \
- && mkdir -p gocode/src/github.com/ \
- && go get github.com/axw/gocov/gocov \
- && go get github.com/AlekSi/gocov-xml
-                           
+ENV GOPATH="/home/jenkins/workspace/gocode"
+ENV PATH="/home/jenkins/workspace/gocode/bin:$PATH"
+RUN yum install -y golang
+
 # Ruby requirements
-ENV PATH="~/.rbenv/versions/2.3.0/bin:$PATH"
-RUN yum install -y ruby-devel rubygems-devel cmake make gcc \
+ENV RBENV_ROOT="/home/jenkins"
+ENV PATH="/home/jenkins/versions/2.3.0/bin:$PATH"
+RUN yum install -y rubygems \
  && yum install -y openssl-devel readline-devel zlib-devel \
  && git clone --depth 1 https://github.com/rbenv/rbenv.git ~/.rbenv \
- && cd ~/.rbenv && src/configure && make -C src && cd / \
+ && cd ~/.rbenv && src/configure && make -C src && cd ~ \
  && git clone --depth 1 https://github.com/rbenv/ruby-build.git \
  && PREFIX=/usr/local ./ruby-build/install.sh \
  && ~/.rbenv/bin/rbenv install 2.3.0 \
- && gem install bundler
+ && export PATH="home/jenkins/versions/2.3.0/bin:$PATH" \
+ && gem install bundler \
+ && chmod -R go+wx /usr/local \
+ && chmod -R go+wx /usr/bin \
+ && chmod -R go+wx /home/jenkins

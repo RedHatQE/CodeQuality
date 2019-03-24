@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -9,10 +9,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh 'dnf install -y python2-devel.x86_64'
-                sh 'pip install coverage unittest2'
             }
         }
         stage('Analyse') {

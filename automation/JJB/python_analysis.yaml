@@ -36,7 +36,7 @@
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -65,7 +65,7 @@
       # project deployment script goes here
       - shell: |
           # install dependencies
-          dnf install -y wget python2-devel.x86_64 rpm-build
+          dnf install -y wget rpm-build
 
           # deployment command to install pulp testing requirements
           rpmspec -q --queryformat '[%{REQUIRENAME}\n]' *.spec |\
