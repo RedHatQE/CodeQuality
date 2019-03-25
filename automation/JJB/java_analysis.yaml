@@ -1,5 +1,5 @@
 - job:
-    name: sonarqube_ruby-plugin_java_full_analysis
+    name: sonarqube_java_analysis
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -62,7 +62,7 @@
 
       # project deployment script goes here
       - shell: |
-          dnf install -y maven java-1.8.0-openjdk-devel.x86_64
+          yum install -y maven java-1.8.0-openjdk-devel.x86_64
 
       # coverage tests initialization script
       - shell: |
@@ -95,3 +95,4 @@
             sonar.login=test
             sonar.password=test
             sonar.ws.timeout=180
+            sonar.java.binaries=**/target/classes

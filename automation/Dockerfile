@@ -10,7 +10,7 @@ ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
 RUN yum install -y epel-release \
  && yum install -y gcc python-devel \
  && yum install -y python-pip \
- && yum install -y git \
+ && yum install -y git
                            
 # Python requirements                                                           
 RUN yum install -y python-devel.x86_64 \

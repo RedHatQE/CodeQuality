@@ -1,5 +1,5 @@
 - job:
-          name: golang_coverage
+          name: golang_coverage_analysis
 
           #######################################################
           ############## SonarQube Parameters ###################
