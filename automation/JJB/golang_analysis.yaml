@@ -46,7 +46,7 @@
           scm:
             - git:
                 url: https://github.com/RedHatQE/CodeQuality.git
-                basedir: /home/jenkins/workspace/gocode/src/github.com/
+                basedir: ${WORKSPACE}/gocode/src/github.com/
                 skip-tag: true
 
           #######################################################
@@ -58,7 +58,9 @@
             # project deployment script goes here
             - shell: |
                 # Generating Coverage report
-                cd gocode/src/github.com/examples/golang-test-repo/
+                cd ${WORKSPACE}/gocode/src/github.com/examples/golang-test-repo/
+                export GOPATH=${WORKSPACE}/gocode/
+                export PATH="${WORKSPACE}/gocode/bin:$PATH"
                 go test -coverprofile=cover.out
 
                 # Download tool and convert report to XML file
@@ -83,8 +85,8 @@
                   sonar.projectKey=$SONAR_KEY
                   sonar.projectName=$SONAR_NAME
                   sonar.projectVersion=$SONAR_PROJECT_VERSION
-                  sonar.sources=/home/jenkins/workspace/gocode/src/github.com/examples/golang-test-repo/
-                  sonar.projectBaseDir=/home/jenkins/workspace/gocode/src/github.com/examples/golang-test-repo/
+                  sonar.sources=${WORKSPACE}/gocode/src/github.com/examples/golang-test-repo/
+                  sonar.projectBaseDir=${WORKSPACE}/gocode/src/github.com/examples/golang-test-repo/
                   sonar.go.coverage.reportPaths=cover.out
                   sonar.language=go
                   sonar.inclusions=**/size.go
@@ -101,7 +103,7 @@
             # publishes aggregated results to Jenkins
           publishers:
             - cobertura:
-                report-file: "/home/jenkins/workspace/gocode/src/github.com/examples/golang-test-repo/coverage.xml"
+                report-file: "**/gocode/src/github.com/examples/golang-test-repo/coverage.xml"
                 targets:
                   - line:
                       healthy: 0

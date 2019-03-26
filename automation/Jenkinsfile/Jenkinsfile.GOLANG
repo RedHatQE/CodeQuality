@@ -9,8 +9,10 @@ pipeline {
                     // clone project and install dependencies
                     // run tests with coverage and export results to xml
                     sh '''
-                    mkdir -p /home/jenkins/workspace/gocode/src/github.com/
-                    cd /home/jenkins/workspace/gocode/src/github.com/
+                    mkdir -p gocode/src/github.com/
+                    cd gocode/src/github.com/
+                    export GOPATH=${WORKSPACE}/gocode/
+                    export PATH="${WORKSPACE}/gocode/bin:$PATH"
                     go get github.com/axw/gocov/gocov
                     go get github.com/AlekSi/gocov-xml
                     git clone https://github.com/RedHatQE/CodeQuality.git
@@ -42,8 +44,8 @@ pipeline {
                       sonar.projectKey=test-files_1_0_golang_coverage_analysis
                       sonar.projectName=go-coverage
                       sonar.projectVersion=1.0
-                      sonar.sources=/home/jenkins/workspace/gocode/src/github.com/CodeQuality/examples/golang-test-repo/
-                      sonar.projectBaseDir=/home/jenkins/workspace/gocode/src/github.com/CodeQuality/examples/golang-test-repo/
+                      sonar.sources=${WORKSPACE}/gocode/src/github.com/CodeQuality/examples/golang-test-repo/
+                      sonar.projectBaseDir=${WORKSPACE}/gocode/src/github.com/CodeQuality/examples/golang-test-repo/
                       sonar.go.coverage.reportPaths=cover.out
                       sonar.language=go
                       sonar.inclusions=**/*.go

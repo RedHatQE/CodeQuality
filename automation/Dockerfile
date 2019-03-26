@@ -25,8 +25,6 @@ RUN yum install -y gcc-c++ cppunit-devel.x86_64 cppunit.x86_64 unzip \
 RUN yum install -y maven 
 
 # Golang requirements
-ENV GOPATH="/home/jenkins/workspace/gocode"
-ENV PATH="/home/jenkins/workspace/gocode/bin:$PATH"
 RUN yum install -y golang
 
 # Ruby requirements

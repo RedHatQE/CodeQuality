@@ -1,5 +1,5 @@
 - job:
-    name: sonarqube_testfiles_cpp_coverage_analysis
+    name: sonarqube_cpp_analysis
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -91,11 +91,11 @@
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=${WORKSPACE}
-            sonar.projectBaseDir=${WORKSPACE}
+            sonar.sources=${WORKSPACE}/examples/cpp-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/cpp-test-repo
             sonar.language=c++
             sonar.inclusions=**/*.cpp
-            sonar.cxx.coverage.reportPath=${WORKSPACE}/report.xml
+            sonar.cxx.coverage.reportPath=${WORKSPACE}/examples/cpp-test-repo/report.xml
             sonar.login=test
             sonar.password=test
             sonar.ws.timeout=180
@@ -107,7 +107,7 @@
     # publishes aggregated results to Jenkins
     publishers:
       - cobertura:
-          report-file: "**/report.xml"
+          report-file: "**/examples/cpp-test-repo/report.xml"
           targets:
             - line:
                 healthy: 0

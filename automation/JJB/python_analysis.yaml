@@ -1,5 +1,5 @@
 - job:
-    name: sonarqube_pulp_python_full_analysis
+    name: sonarqube_python_full_analysis
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -9,11 +9,11 @@
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_pulp_python_full_analysis
+          default: sonarqube_python_full_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
-          default: Pulp Python Analysis
+          default: Python Analysis
           description: "SonarQube project name"
       - string:
           name: SONAR_PROJECT_VERSION
@@ -45,9 +45,7 @@
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/pulp/pulp.git
-          branches:
-            - 2.11-dev
+          url: https://github.com/RedHatQE/CodeQuality.git
           skip-tag: true
 
     # git polling trigger set to once an hour
@@ -62,29 +60,10 @@
 
     builders:
 
-      # project deployment script goes here
-      - shell: |
-          # install dependencies
-          yum install -y wget rpm-build
-
-          # deployment command to install pulp testing requirements
-          rpmspec -q --queryformat '[%{REQUIRENAME}\n]' *.spec |\
-                grep -v "/.*" | grep -v "python-pulp.* " | grep -v "pulp.*" |\
-                uniq | xargs -I {} dnf install -y --allowerasing {} || true
-
-          pip install -r test_requirements.txt
-
-          # install project
-          python devel/setup.py install || true
-
-          # remove lines calling on `systemctl` as they are not needed
-          # inside a docker container environment
-          sed -i '400,401d;435,437d' pulp-dev.py
-          python ./pulp-dev.py -I || true
-
       # coverage tests initialization script
       - shell: |
-          python run-tests.py --enable-coverage || true
+          cd examples/python-test-repo
+          coverage run --source . main.py
           coverage xml
 
       # sonar runner parameters, set sources and baseDir to project home
@@ -104,8 +83,8 @@
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=${WORKSPACE}
-            sonar.projectBaseDir=${WORKSPACE}
+            sonar.sources=${WORKSPACE}/examples/python-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/python-test-repo
             sonar.python.coverage.reportPath=coverage.xml
             sonar.language=py
             sonar.inclusions=**/*.py
