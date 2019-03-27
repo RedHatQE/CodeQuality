@@ -1,5 +1,5 @@
 - job:
-          name: golang_coverage_analysis
+          name: sonarqube_golang_analysis
 
           #######################################################
           ############## SonarQube Parameters ###################
@@ -9,7 +9,7 @@
           parameters:
             - string:
                 name: SONAR_KEY
-                default: golang_coverage
+                default: sonarqube_golang_analysis
                 description: "SonarQube unique project key"
             - string:
                 name: SONAR_NAME

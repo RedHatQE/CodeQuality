@@ -9,7 +9,7 @@
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_ruby-plugin_java_full_analysis
+          default: sonarqube_java_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME

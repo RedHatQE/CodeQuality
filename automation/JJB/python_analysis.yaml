@@ -1,5 +1,5 @@
 - job:
-    name: sonarqube_python_full_analysis
+    name: sonarqube_python_analysis
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -9,7 +9,7 @@
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_python_full_analysis
+          default: sonarqube_python_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME

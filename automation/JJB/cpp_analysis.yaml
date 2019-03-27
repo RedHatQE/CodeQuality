@@ -9,7 +9,7 @@
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_testfiles_cpp_coverage_analysis
+          default: sonarqube_cpp_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
