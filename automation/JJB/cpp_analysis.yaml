@@ -1,5 +1,5 @@
 - job:
-    name: sonarqube_testfiles_cpp_coverage_analysis
+    name: sonarqube_cpp_analysis
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -9,7 +9,7 @@
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_testfiles_cpp_coverage_analysis
+          default: sonarqube_cpp_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
@@ -36,7 +36,7 @@
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -59,12 +59,6 @@
     #######################################################
 
     builders:
-
-      # project deployment script goes here
-      - shell: |
-          dnf install -y gcc-c++ cppunit-devel.x86_64 \
-            cppunit.x86_64 unzip wget python-devel
-          pip install gcovr
 
       # coverage tests initialization script
       - shell: |
@@ -97,11 +91,11 @@
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=${WORKSPACE}
-            sonar.projectBaseDir=${WORKSPACE}
+            sonar.sources=${WORKSPACE}/examples/cpp-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/cpp-test-repo
             sonar.language=c++
             sonar.inclusions=**/*.cpp
-            sonar.cxx.coverage.reportPath=${WORKSPACE}/report.xml
+            sonar.cxx.coverage.reportPath=${WORKSPACE}/examples/cpp-test-repo/report.xml
             sonar.login=test
             sonar.password=test
             sonar.ws.timeout=180
@@ -113,7 +107,7 @@
     # publishes aggregated results to Jenkins
     publishers:
       - cobertura:
-          report-file: "**/report.xml"
+          report-file: "**/examples/cpp-test-repo/report.xml"
           targets:
             - line:
                 healthy: 0

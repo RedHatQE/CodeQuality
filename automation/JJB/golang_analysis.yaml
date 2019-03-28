@@ -1,5 +1,5 @@
 - job:
-          name: golang_coverage
+          name: sonarqube_golang_analysis
 
           #######################################################
           ############## SonarQube Parameters ###################
@@ -9,7 +9,7 @@
           parameters:
             - string:
                 name: SONAR_KEY
-                default: golang_coverage
+                default: sonarqube_golang_analysis
                 description: "SonarQube unique project key"
             - string:
                 name: SONAR_NAME
@@ -36,7 +36,7 @@
           ################### Slave Image #######################
           #######################################################
 
-          node: ssh_slave
+          node: sonarqube-upshift
 
           #######################################################
           ################ Git Trigger Config ###################
@@ -57,18 +57,10 @@
 
             # project deployment script goes here
             - shell: |
-                # Creating path for Golang code
-                mkdir -p gocode/src/github.com/
-                cd gocode/src/github.com/
-
-                # Download, install Go and Define Env variables
-                dnf install -y golang
-                export PATH=/usr/bin/go/bin:$PATH
-                export PATH=${WORKSPACE}/gocode/bin:$PATH
-                export GOPATH=${WORKSPACE}/gocode
-
                 # Generating Coverage report
-                cd examples/golang-test-repo/
+                cd ${WORKSPACE}/gocode/src/github.com/examples/golang-test-repo/
+                export GOPATH=${WORKSPACE}/gocode/
+                export PATH="${WORKSPACE}/gocode/bin:$PATH"
                 go test -coverprofile=cover.out
 
                 # Download tool and convert report to XML file

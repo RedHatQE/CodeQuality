@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -9,10 +9,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc'
-                sh 'gem install bundler'
 
                 // install coverage dependencies from Gemfile
                 dir('examples/ruby-test-repo'){

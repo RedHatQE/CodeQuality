@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -9,16 +9,17 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
-                git url: 'https://github.com/shakedlokits/CodeQuality.git', branch: 'java-test-repo'
-                sh 'dnf install -y maven java-1.8.0-openjdk-devel.x86_64'
+                // clone project
+                git url: 'https://github.com/RedHatQE/CodeQuality.git'
             }
         }
         stage('Analyse') {
             steps {
                 // coverage tests initialization script
+                dir('examples/java-test-repo'){
                 sh '''mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent \
                   install -Dmaven.test.failure.ignore=true || true'''
+                }
             }
         }
         stage('Report') {
@@ -36,6 +37,7 @@ pipeline {
             exclusions (string): file exclusion pattern
             login (string): SonarQube server user name
             password (string): SonarQube server user password
+            java.binaries (string): REQUIRED Since SonarJava 4.12
              */
             steps {
               writeFile file: "${pwd()}/sonar-project.properties", text: """
@@ -50,15 +52,15 @@ pipeline {
               sonar.login=test
               sonar.password=test
               sonar.ws.timeout=180
+              sonar.java.binaries=**/target/classes
               """
 
               // initite pre-configured sonar scanner tool on project
-              // 'slokits_test_env' is our cnfigured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
               // NOTE: pay attention we are using maven under sonar env
-              withSonarQubeEnv('slokits_test_env') {
-                sh 'mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install -U -Dmaven.test.failure.ignore=true org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
-
+              withSonarQubeEnv('sonarqube_prod') {
+                sh "${tool 'sonar-scanner-2.8'}/bin/sonar-scanner"
               }
             }
         }
