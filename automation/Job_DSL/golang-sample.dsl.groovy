@@ -47,6 +47,9 @@ job(jobName) {
     configure {
         it / 'builders' << 'hudson.plugins.sonar.SonarRunnerBuilder' {
             properties ("$sonarProperties")
+        }
     }
-  }
+    publishers {
+        cobertura('**/gocode/src/github.com/examples/golang-test-repo/coverage.xml')
+    }
 }
