@@ -10,7 +10,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sonar.language>java</sonar.language>
-    <sonar.host.url>http://sonar-test.lab.eng.rdu2.redhat.com</sonar.host.url>
+    <sonar.host.url>http://sonar-server.lab.eng.rdu2.redhat.com</sonar.host.url>
     <sonar.projectKey>maven-test-project_full-analysis_slokits</sonar.projectKey>
   	<sonar.inclusions>**/*.java</sonar.inclusions>
   	<sonar.ws.timeout>180</sonar.ws.timeout>
