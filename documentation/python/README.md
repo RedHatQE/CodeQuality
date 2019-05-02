@@ -719,19 +719,20 @@ The following file illustrates a possible JJB configuration
 
 Reference Docs:
 
- - [How to generate coverage report for http based integration tests?](https://stackoverflow.com/questions/50689940/how-to-generate-coverage-report-for-http-based-integration-tests)
+ - [How to generate coverage report for http based integration tests?][1]
 
 ###Requirements
 
- - [pytest](https://docs.pytest.org/en/latest/)
- - [pytest-cov](https://pypi.org/project/pytest-cov/)
+ - [pytest][2]
+ - [pytest-cov][3]
 
 We can implement the solution using the next steps:
 
 1. Run the Server under Coverage mode.
 2. Run the tests.
 3. Ensure the Server coverage is written to file.
-4. Read the coverage from this file and append it to the tests coverage report.
+4. Read the coverage from this file and append it to the
+   tests coverage report.
 
 ##Http Server Example
 
@@ -775,12 +776,12 @@ def test_get():
 ```
 ###Solution
 
-Below it is a [conftest.py](https://docs.pytest.org/en/2.7.3/plugins.html?highlight=re#conftest-py-plugins) file located under "tests" folder and
+Below it is a [conftest.py][4] file located under "tests" folder and
 from it we are running the server with a slightly modified environment using
-[os.environ.copy()](https://www.programcreek.com/python/example/61725/os.environ.copy) and [Subprocess management](https://docs.python.org/2/library/subprocess.html).
+[os.environ.copy()][5] and [Subprocess management][6].
 We are also reading the coverage data from a file using the python api
-[coverage.data.CoverageData](https://programtalk.com/python-examples/coverage.data.CoverageData/) and appending it using a fixture provided by
-pytest-cov called [cov](https://pytest-cov.readthedocs.io/en/latest/markers-fixtures.html#cov). We marked the above four steps in the file below.
+[coverage.data.CoverageData][7] and appending it using a fixture provided by
+pytest-cov called [cov][8]. We marked the above four steps in the file below.
 
 ```python
 # tests/conftest.py
@@ -843,3 +844,11 @@ TOTAL                         32      0   100%
 
 ============================ 1 passed in 5.09 seconds =============================
 ```
+[1]: https://stackoverflow.com/questions/50689940/how-to-generate-coverage-report-for-http-based-integration-tests
+[2]: https://docs.pytest.org/en/latest/
+[3]: https://pypi.org/project/pytest-cov/
+[4]: https://docs.pytest.org/en/2.7.3/plugins.html?highlight=re#conftest-py-plugins
+[5]: https://www.programcreek.com/python/example/61725/os.environ.copy
+[6]: https://docs.python.org/2/library/subprocess.html
+[7]: https://programtalk.com/python-examples/coverage.data.CoverageData/
+[8]: https://pytest-cov.readthedocs.io/en/latest/markers-fixtures.html#cov
