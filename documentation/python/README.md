@@ -715,3 +715,140 @@ The following file illustrates a possible JJB configuration
             sonar.exclusions=tests/**/*.py
             sonar.ws.timeout=180
 ```
+#Code Coverage With Integration Tests
+
+Reference Docs:
+
+ - [How to generate coverage report for http based integration tests?][1]
+
+###Requirements
+
+ - [pytest][2]
+ - [pytest-cov][3]
+
+We can implement the solution using the next steps:
+
+1. Run the Server under Coverage mode.
+2. Run the tests.
+3. Ensure the Server coverage is written to file.
+4. Read the coverage from this file and append it to the
+   tests coverage report.
+
+##Http Server Example
+
+###HttpServer
+
+The http_server.py file creates a simple http server that respond "Hello World"
+page on a GET requests.
+
+```python
+# http_server.py
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+
+
+class DummyHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html')
+        self.end_headers()
+        self.wfile.write('<html><body><h1>Hello World</h1></body></html>'.encode())
+
+
+if __name__ == '__main__':
+    HTTPServer(('127.0.0.1', 7000), DummyHandler).serve_forever()
+```
+
+###test
+
+A simple test that makes an HTTP request and verifies the response contains
+"Hello World":
+
+```python
+# tests/test_httpserver.py
+import requests
+
+
+def test_get():
+    respond = requests.get('http://127.0.0.1:7000')
+    respond.raise_for_status()
+    assert 'Hello World' in respond.text
+```
+###Solution
+
+Below it is a [conftest.py][4] file located under "tests" folder and
+from it we are running the server with a slightly modified environment using
+[os.environ.copy()][5] and [Subprocess management][6].
+We are also reading the coverage data from a file using the python api
+[coverage.data.CoverageData][7] and appending it using a fixture provided by
+pytest-cov called [cov][8]. We marked the above four steps in the file below.
+
+```python
+# tests/conftest.py
+import os
+import signal
+import subprocess
+import time
+import coverage.data
+import pytest
+
+
+
+@pytest.fixture(autouse=True)
+def run_server(cov):
+    # 1.
+    server_env = os.environ.copy()
+    server_env['COVERAGE_FILE'] = '.coverage.http_server'
+    serverprocess = subprocess.Popen(['coverage', 'run', 'http_server.py'],
+                                     env=server_env,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     preexec_fn=os.setsid)
+    time.sleep(3)
+    yield  # 2.
+    # 3.
+    serverprocess.send_signal(signal.SIGINT)
+    time.sleep(1)
+    # 4.
+    server_cov = coverage.data.CoverageData()
+    with open('.coverage.http_server') as cov_f:
+        server_cov.read_fileobj(cov_f)
+    cov.data.update(server_cov)
+```
+
+Now we are Running the tests and adding the coverage of the httpServer.py to
+the overall coverage, although only tests selected. The --cov define which
+folder we will cover and "--cov-report term" tell pytest to output the coverage
+report to the terminal (we could choose xml or http format also):
+
+```bash
+$ pytest --cov=tests --cov-report term -vs
+=============================== test session starts ===============================
+platform linux2 -- Python 2.7.5, pytest-4.4.1, py-1.8.0, pluggy-0.9.0 -- /usr/bin/python2
+cachedir: .pytest_cache
+rootdir: /tmp/py_integ
+plugins: cov-2.6.1
+collected 1 item
+
+tests/test_httpserver.py::test_get PASSED
+
+---------- coverage: platform linux2, python 2.7.5-final-0 -----------
+Name                       Stmts   Miss  Cover
+----------------------------------------------
+http_server.py                 9      0   100%
+tests/conftest.py             18      0   100%
+tests/test_httpserver.py       5      0   100%
+----------------------------------------------
+TOTAL                         32      0   100%
+
+
+============================ 1 passed in 5.09 seconds =============================
+```
+[1]: https://stackoverflow.com/questions/50689940/how-to-generate-coverage-report-for-http-based-integration-tests
+[2]: https://docs.pytest.org/en/latest/
+[3]: https://pypi.org/project/pytest-cov/
+[4]: https://docs.pytest.org/en/2.7.3/plugins.html?highlight=re#conftest-py-plugins
+[5]: https://www.programcreek.com/python/example/61725/os.environ.copy
+[6]: https://docs.python.org/2/library/subprocess.html
+[7]: https://programtalk.com/python-examples/coverage.data.CoverageData/
+[8]: https://pytest-cov.readthedocs.io/en/latest/markers-fixtures.html#cov
