@@ -715,13 +715,13 @@ The following file illustrates a possible JJB configuration
             sonar.exclusions=tests/**/*.py
             sonar.ws.timeout=180
 ```
-#Code Coverage With Integration Tests
+# Code Coverage With Integration Tests
 
 Reference Docs:
 
  - [How to generate coverage report for http based integration tests?][1]
 
-###Requirements
+### Requirements
 
  - [pytest][2]
  - [pytest-cov][3]
@@ -734,9 +734,9 @@ We can implement the solution using the next steps:
 4. Read the coverage from this file and append it to the
    tests coverage report.
 
-##Http Server Example
+## Http Server Example
 
-###HttpServer
+### HttpServer
 
 The http_server.py file creates a simple http server that respond "Hello World"
 page on a GET requests.
@@ -759,7 +759,7 @@ if __name__ == '__main__':
     HTTPServer(('127.0.0.1', 7000), DummyHandler).serve_forever()
 ```
 
-###test
+### test
 
 A simple test that makes an HTTP request and verifies the response contains
 "Hello World":
@@ -774,7 +774,7 @@ def test_get():
     respond.raise_for_status()
     assert 'Hello World' in respond.text
 ```
-###Solution
+### Solution
 
 Below it is a [conftest.py][4] file located under "tests" folder and
 from it we are running the server with a slightly modified environment using
