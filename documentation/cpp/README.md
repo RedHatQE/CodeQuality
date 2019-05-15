@@ -672,3 +672,157 @@ The following file illustrates a possible JJB configuration
                 unhealthy: 0
                 failing: 0
 ```
+
+# Code Coverage With Integration Tests
+
+Reference links:
+
+ - [C Programming: A Simple Web Server Program][1]
+
+### Requirements
+
+ - [gcc][2]
+ - [gcov][3]
+ - [gcovr][4]
+
+In order to get coverage report in cpp programs, the only thing you need is:
+    1. Programs must be compiled using gcc only to use gcov.
+    2. gcov must be invoked in the same directory as that where the source
+       was compiled.
+
+Below we will see a simple http server example in cpp, we will compile it
+with coverage ability and get the report after the server stops.
+
+### Http Server
+
+The foo.c file creates a simple http server that respond "Hello World"
+page on a GET requests.
+
+foo.c file.
+
+```cpp
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+char webpage[] =
+"HTTP/1.1 200 OK\r\n"
+"Content-Type: text/html; charset=UTF-8\r\n\r\n"
+"<!DOCTYPE html>\r\n"
+"<html><head><title>Shay Test</title></head>\r\n"
+"<body><center><h1>Hello World!</h1><br>\r\n"
+"</center></body></html>\r\n";
+
+int main(int argc, char *argv[])
+{
+    struct sockaddr_in server_addr, client_addr;
+    socklen_t sin_len = sizeof(client_addr);
+    int http_server , http_client;
+    char buf[2048];
+    int on = 1;
+
+    http_server = socket(AF_INET, SOCK_STREAM, 0);
+    if(http_server < 0)
+    {
+        perror("socket");
+        exit(1);
+    }
+
+    setsockopt(http_server, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int));
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(8080);
+
+    if(bind(http_server, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1)
+    {
+         perror("bind");
+         close(http_server);
+         exit(1);
+    }
+
+    if(listen(http_server, 10) == -1)
+    {
+         perror("listen");
+         close(http_server);
+         exit(1);
+    }
+
+    while(1)
+    {
+        http_client = accept(http_server, (struct sockaddr *) &client_addr, &sin_len);
+
+        if(http_client == -1)
+        {
+            perror("Connection faild....\n");
+            continue;
+        }
+
+        printf("Got client connection.....\n");
+
+        if (!fork())
+        {
+            /* child process */
+            close(http_server);
+            memset(buf, 0, 2048);
+            read(http_client, buf, 2047);
+
+            printf("%s\n", buf);
+
+            write(http_client, webpage, sizeof(webpage) - 1);
+
+            close (http_client);
+            printf("closing the server...\n");
+            exit(0);
+
+        }
+        /* parent process */
+        close(http_client);
+    }
+
+    return 0;
+}
+```
+
+Now we will complie it with coverage flags and run the executable file:
+```bash
+gcc -fprofile-arcs -ftest-coverage -o foo foo.c
+./foo
+```
+After browsing http://localhost:8080 URL and stoping this server,
+we can run the below command which creates the report gcov file:
+
+```bash
+gcov -b -c foo.c
+```
+
+The output need to be something like this:
+
+```bash
+File 'foo.c'
+Lines executed:71.43% of 35
+Branches executed:100.00% of 10
+Taken at least once:60.00% of 10
+Calls executed:64.00% of 25
+Creating 'foo.c.gcov'
+```
+
+If you need an XML report file, you can run this command:
+
+```bash
+gcovr -x > report.xml
+```
+That's it!
+
+[1]: https://www.youtube.com/watch?v=Q1bHO4VbUck
+[2]: https://www.cyberciti.biz/faq/centos-rhel-7-redhat-linux-install-gcc-compiler-development-tools/
+[3]: https://www.tutorialspoint.com/unix_commands/gcov.htm
+[4]: https://pypi.org/project/gcovr/
