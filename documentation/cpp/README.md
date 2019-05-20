@@ -456,7 +456,7 @@ The following file illustrates a possible Jenkinsfile configuration
 
 ```groovey
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -466,12 +466,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh """dnf install -y gcc-c++ cppunit-devel.x86_64 \
-                cppunit.x86_64 unzip wget python2-devel
-                """
-                sh 'pip install gcovr'
             }
         }
         stage('Analyse') {
@@ -551,7 +547,7 @@ The following file illustrates a possible JJB configuration
 
 ```yaml
 - job:
-    name: sonarqube_testfiles_cpp_coverage_analysis
+    name: sonarqube_cpp_analysis
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -561,7 +557,7 @@ The following file illustrates a possible JJB configuration
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_testfiles_cpp_coverage_analysis
+          default: sonarqube_cpp_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
@@ -588,7 +584,7 @@ The following file illustrates a possible JJB configuration
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -611,12 +607,6 @@ The following file illustrates a possible JJB configuration
     #######################################################
 
     builders:
-
-      # project deployment script goes here
-      - shell: |
-          dnf install -y gcc-c++ cppunit-devel.x86_64 \
-            cppunit.x86_64 unzip wget python-devel
-          pip install gcovr
 
       # coverage tests initialization script
       - shell: |
@@ -649,11 +639,11 @@ The following file illustrates a possible JJB configuration
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=${WORKSPACE}
-            sonar.projectBaseDir=${WORKSPACE}
+            sonar.sources=${WORKSPACE}/examples/cpp-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/cpp-test-repo
             sonar.language=c++
             sonar.inclusions=**/*.cpp
-            sonar.cxx.coverage.reportPath=${WORKSPACE}/report.xml
+            sonar.cxx.coverage.reportPath=${WORKSPACE}/examples/cpp-test-repo/report.xml
             sonar.login=test
             sonar.password=test
             sonar.ws.timeout=180
@@ -665,12 +655,64 @@ The following file illustrates a possible JJB configuration
     # publishes aggregated results to Jenkins
     publishers:
       - cobertura:
-          report-file: "**/report.xml"
+          report-file: "**/examples/cpp-test-repo/report.xml"
           targets:
             - line:
                 healthy: 0
                 unhealthy: 0
                 failing: 0
+```
+
+### Job DSL
+
+#### Example
+
+```Job DSL
+def jobName = 'cpp-coverage-dsl-sample'
+def giturl = 'https://github.com/RedHatQE/CodeQuality.git'
+def sonarProperties = '''
+    sonar.projectKey=test-files_1_0_cpp_full-analysis
+    sonar.projectName=CPP Testfiles
+    sonar.projectVersion=1.0
+    sonar.sources=${WORKSPACE}/examples/cpp-test-repo
+    sonar.projectBaseDir=${WORKSPACE}/examples/cpp-test-repo
+    sonar.language=c++
+    sonar.inclusions=**/*.cpp
+    sonar.cxx.coverage.reportPath=${WORKSPACE}/examples/cpp-test-repo/report.xml
+    sonar.login=test
+    sonar.password=test
+    sonar.ws.timeout=180
+       '''.stripIndent()
+
+
+job(jobName) {
+    label('sonarqube-upshift')
+    scm {
+        git(giturl)
+    }
+    triggers {
+        cron '0 8 * * *'
+    }
+    steps {
+        shell '''
+            # compile test files with coverage and mapping flags
+            cd examples/cpp-test-repo
+            g++ -g --coverage -lcppunit *.cpp -o testcpp
+
+            # generate runtime coverage metrics report
+            ./testcpp
+            gcov -o $(pwd) -f $(pwd)/main.cpp
+
+            # aggregate generated reports to xml report
+            gcovr -r $(pwd) -x --object-directory=$(pwd) > report.xml
+        '''
+    }
+    configure {
+        it / 'builders' << 'hudson.plugins.sonar.SonarRunnerBuilder' {
+            properties ("$sonarProperties")
+    }
+  }
+}
 ```
 
 # Code Coverage With Integration Tests

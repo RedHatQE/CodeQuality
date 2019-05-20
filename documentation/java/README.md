@@ -525,7 +525,7 @@ The following file illustrates a possible Jenkinsfile configuration
 
 ```groovey
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -535,56 +535,30 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh 'dnf install -y maven java-1.8.0-openjdk-devel.x86_64'
             }
         }
         stage('Analyse') {
             steps {
                 // coverage tests initialization script
+                dir('examples/java-test-repo'){
                 sh '''mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent \
                   install -Dmaven.test.failure.ignore=true || true'''
+                }
             }
         }
         stage('Report') {
-            /*
-            sonar runner parameters, set sources and baseDir to project home
-            ========================
-
-            projectKey (string): SonarQube project identification key (unique)
-            projectName (string): SonarQube project name (NOT unique)
-            projectVersion (string): SonarQube project version (unique)
-            sources (string): source code home directory
-            projectBaseDir (string): project home directory (same as sources)
-            language (string): project language(java)
-            inclusions (string): file inclusion pattern
-            exclusions (string): file exclusion pattern
-            login (string): SonarQube server user name
-            password (string): SonarQube server user password
-             */
             steps {
-              writeFile file: "${pwd()}/sonar-project.properties", text: """
-              sonar.projectKey=test-files_1_0_java_full-analysis
-              sonar.projectName=Java Testfiles
-              sonar.projectVersion=1.0
-              sonar.sources=${pwd()}
-              sonar.projectBaseDir=${pwd()}
-              sonar.language=java
-              sonar.inclusions=**/*.java
-              sonar.exclusions=src/test/**/*.java
-              sonar.login=test
-              sonar.password=test
-              sonar.ws.timeout=180
-              """
-
               // initite pre-configured sonar scanner tool on project
-              // 'sonarqube_prod' is our configured tool name, see yours
+              // 'sonarqube_prod' is our cnfigured tool name, see yours
               // in the Jenkins tool configuration
               // NOTE: pay attention we are using maven under sonar env
               withSonarQubeEnv('sonarqube_prod') {
-                sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
+                dir('examples/java-test-repo'){
 
+                sh "mvn sonar:sonar"
+                }
               }
             }
         }
@@ -610,7 +584,8 @@ The following file illustrates a possible JJB configuration
 
 ```yaml
 - job:
-    name: sonarqube_ruby-plugin_java_full_analysis
+    name: sonarqube_java_analysis
+
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -620,7 +595,7 @@ The following file illustrates a possible JJB configuration
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_ruby-plugin_java_full_analysis
+          default: sonarqube_java_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
@@ -647,7 +622,7 @@ The following file illustrates a possible JJB configuration
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -670,10 +645,6 @@ The following file illustrates a possible JJB configuration
     #######################################################
 
     builders:
-
-      # project deployment script goes here
-      - shell: |
-          dnf install -y maven java-1.8.0-openjdk-devel.x86_64
 
       # coverage tests initialization script
       - shell: |
@@ -706,4 +677,50 @@ The following file illustrates a possible JJB configuration
             sonar.login=test
             sonar.password=test
             sonar.ws.timeout=180
+            sonar.java.binaries=**/target/classes
+```
+
+### Job DSL
+
+#### Example
+
+```Job DSL
+def jobName = 'java-coverage-dsl-sample'
+def giturl = 'https://github.com/RedHatQE/CodeQuality.git'
+def sonarProperties = '''
+    sonar.projectKey=sonarqube_java_analysis
+    sonar.projectName=Java Analysis
+    sonar.projectVersion=1.0
+    sonar.sources=${WORKSPACE}/examples/java-test-repo
+    sonar.projectBaseDir=${WORKSPACE}/examples/java-test-repo
+    sonar.language=java
+    sonar.inclusions=**/*.java
+    sonar.exclusions=tests/**/*.java
+    sonar.login=test
+    sonar.password=test
+    sonar.ws.timeout=180
+    sonar.java.binaries=target/maven-test-project-1.0.jar
+       '''.stripIndent()
+
+
+job(jobName) {
+    label('sonarqube-upshift')
+    scm {
+        git(giturl)
+    }
+    triggers {
+        cron '0 8 * * *'
+    }
+    steps {
+        shell '''
+           cd examples/java-test-repo
+           mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install -Dmaven.test.failure.ignore=true || true
+        '''
+    }
+    configure {
+        it / 'builders' << 'hudson.plugins.sonar.SonarRunnerBuilder' {
+            properties ("$sonarProperties")
+    }
+  }
+}
 ```

@@ -526,7 +526,7 @@ The following file illustrates a possible Jenkinsfile configuration
 
 ```groovey
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -536,10 +536,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh 'dnf install -y python2-devel.x86_64'
-                sh 'pip install coverage unittest2'
             }
         }
         stage('Analyse') {
@@ -595,7 +593,6 @@ pipeline {
         }
     }
 }
-
 ```
 
 ### Jenkins Job Builder
@@ -616,7 +613,8 @@ The following file illustrates a possible JJB configuration
 
 ```yaml
 - job:
-    name: sonarqube_pulp_python_full_analysis
+    name: sonarqube_python_analysis
+
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -626,11 +624,11 @@ The following file illustrates a possible JJB configuration
     parameters:
       - string:
           name: SONAR_KEY
-          default: sonarqube_pulp_python_full_analysis
+          default: sonarqube_python_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
-          default: Pulp Python Analysis
+          default: Python Analysis
           description: "SonarQube project name"
       - string:
           name: SONAR_PROJECT_VERSION
@@ -638,10 +636,22 @@ The following file illustrates a possible JJB configuration
           description: "SonarQube project version"
 
     #######################################################
+    ############### Logging Aggregation ###################
+    #######################################################
+
+    # define how many days to kee build information
+    properties:
+      - build-discarder:
+          days-to-keep: 60
+          num-to-keep: 200
+          artifact-days-to-keep: 60
+          artifact-num-to-keep: 200
+
+    #######################################################
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -650,15 +660,13 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/pulp/pulp.git
-          branches:
-            - 2.11-dev
+          url: https://github.com/RedHatQE/CodeQuality.git
           skip-tag: true
 
     # git polling trigger set to once an hour
     triggers:
       - pollscm:
-          cron: "H */1 * * *"
+          cron: "0 0 * * 0"
           ignore-post-commit-hooks: True
 
     #######################################################
@@ -667,54 +675,86 @@ The following file illustrates a possible JJB configuration
 
     builders:
 
-      # project deployment script goes here
-      - shell: |
-          # install dependencies
-          dnf install -y wget python-devel.x86_64 rpm-build
-
-          # deployment command to install pulp testing requirements
-          rpmspec -q --queryformat '[%{REQUIRENAME}\n]' *.spec |\
-                grep -v "/.*" | grep -v "python-pulp.* " | grep -v "pulp.*" |\
-                uniq | xargs -I {} dnf install -y --allowerasing {} || true
-
-          pip install -r test_requirements.txt
-
-          # install project
-          python devel/setup.py install || true
-
-          # remove lines calling on `systemctl` as they are not needed
-          # inside a docker container environment
-          sed -i '400,401d;435,437d' pulp-dev.py
-          python ./pulp-dev.py -I || true
-
       # coverage tests initialization script
       - shell: |
-          python run-tests.py --enable-coverage || true
+          cd examples/python-test-repo
+          coverage run --source . main.py
           coverage xml
 
       # sonar runner parameters, set sources and baseDir to project home
       # projectKey (string): SonarQube project identification key (unique)
       # projectName (string): SonarQube project name (NOT unique)
-      # projectVersion (string): Analyzed project version (unique)
+      # projectVersion (string): SonarQube project version (unique)
       # sources (string): source code home directory
       # projectBaseDir (string): project home directory (same as sources)
       # language (string): project language(ruby)
       # inclusions (string): file inclusion pattern
       # exclusions (string): file exclusion pattern
+      # login (string): SonarQube server user name
+      # password (string): SonarQube server user password
       - sonar:
           sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=${WORKSPACE}
-            sonar.projectBaseDir=${WORKSPACE}
+            sonar.sources=${WORKSPACE}/examples/python-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/python-test-repo
             sonar.python.coverage.reportPath=coverage.xml
             sonar.language=py
             sonar.inclusions=**/*.py
             sonar.exclusions=tests/**/*.py
+            sonar.login=test
+            sonar.password=test
             sonar.ws.timeout=180
 ```
+
+### Job DSL
+
+#### Example
+
+```Job DSL
+def jobName = 'python-coverage-dsl-sample'
+def giturl = 'https://github.com/RedHatQE/CodeQuality.git'
+def sonarProperties = '''
+    sonar.projectKey=sonarqube_python_analysis
+    sonar.projectName=Python Analysis
+    sonar.projectVersion=1.0
+    sonar.sources=${WORKSPACE}/examples/python-test-repo
+    sonar.projectBaseDir=${WORKSPACE}/examples/python-test-repo
+    sonar.python.coverage.reportPath=coverage.xml
+    sonar.language=py
+    sonar.inclusions=**/*.py
+    sonar.exclusions=tests/**/*.py
+    sonar.login=test
+    sonar.password=test
+    sonar.ws.timeout=180
+       '''.stripIndent()
+
+
+job(jobName) {
+    label('sonarqube-upshift')
+    scm {
+        git(giturl)
+    }
+    triggers {
+        cron '0 8 * * *'
+    }
+    steps {
+        shell '''
+           cd examples/python-test-repo
+           coverage run --source . main.py
+           coverage xml
+        '''
+    }
+    configure {
+        it / 'builders' << 'hudson.plugins.sonar.SonarRunnerBuilder' {
+            properties ("$sonarProperties")
+    }
+  }
+}
+```
+
 # Code Coverage With Integration Tests
 
 Reference Docs:

@@ -203,7 +203,7 @@ _we can see the following indicators:_
 
   - F - for a failed test
   - E - for an error occurring during a test
-  - dot(.) - for a successful test  
+  - dot(.) - for a successful test
 
     **Now that we've fixed the problem, you can see our tests running successfully!**
 
@@ -289,7 +289,7 @@ Continuing from the previous chapter, assuming our project files are held on a r
 
 	> ⚔ Note: we are using Fedora v23+, if you are using a older version or a different redhat distribution, you might want to try 'yum' instead of 'dnf'
 
-  > ⚔ Note: the **-y** parameter in the dnf command approves installation prompts which is mandatory for automation purposes.  
+  > ⚔ Note: the **-y** parameter in the dnf command approves installation prompts which is mandatory for automation purposes.
 
   > ⚔ Note: the **${WORKSPACE}** environment variable is used by Jenkins in order to point to the current build's working directory
 
@@ -580,7 +580,7 @@ The following file illustrates a possible Jenkinsfile configuration
 
 ```groovey
 pipeline {
-    agent { node { label 'ssh_slave' } }
+    agent { node { label 'sonarqube-upshift' } }
     options {
       skipDefaultCheckout true
     }
@@ -590,10 +590,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                // clone project and install dependencies
+                // clone project
                 git url: 'https://github.com/RedHatQE/CodeQuality.git'
-                sh 'dnf install -y ruby-devel rubygems-devel cmake make gcc'
-                sh 'gem install bundler'
 
                 // install coverage dependencies from Gemfile
                 dir('examples/ruby-test-repo'){
@@ -671,7 +669,8 @@ The following file illustrates a possible JJB configuration
 
 ```yaml
 - job:
-    name: sonarqube_foreman_ruby_coverage
+    name: sonarqube_ruby_analysis
+
 
     #######################################################
     ############## SonarQube Parameters ###################
@@ -681,11 +680,11 @@ The following file illustrates a possible JJB configuration
     parameters:
       - string:
           name: SONAR_KEY
-          default: take10
+          default: sonarqube_ruby_analysis
           description: "SonarQube unique project key"
       - string:
           name: SONAR_NAME
-          default: Ruby Coverage
+          default: Ruby Analysis
           description: "SonarQube project name"
       - string:
           name: SONAR_PROJECT_VERSION
@@ -693,10 +692,22 @@ The following file illustrates a possible JJB configuration
           description: "SonarQube project version"
 
     #######################################################
+    ############### Logging Aggregation ###################
+    #######################################################
+
+    # define how many days to kee build information
+    properties:
+      - build-discarder:
+          days-to-keep: 60
+          num-to-keep: 200
+          artifact-days-to-keep: 60
+          artifact-num-to-keep: 200
+
+    #######################################################
     ################### Slave Image #######################
     #######################################################
 
-    node: ssh_slave
+    node: sonarqube-upshift
 
     #######################################################
     ################ Git Trigger Config ###################
@@ -705,13 +716,13 @@ The following file illustrates a possible JJB configuration
     # git repo to follow, skip-tag to not require auth
     scm:
       - git:
-          url: https://github.com/RedHatQE/foreman-deployment
+          url: https://github.com/RedHatQE/CodeQuality.git
           skip-tag: true
 
     # git polling trigger set to once an hour
     triggers:
       - pollscm:
-          cron: "H */1 * * *"
+          cron: "0 0 * * 0"
           ignore-post-commit-hooks: True
 
     #######################################################
@@ -720,41 +731,80 @@ The following file illustrates a possible JJB configuration
 
     builders:
 
-      # project deployment script goes here
-      - shell: |
-          chmod +x ./install_foreman.sh
-          ./install_foreman.sh
-
-      # coverage tests initialization script
-      - shell: |
-          cd /usr/src/app
-          COVERAGE=on RAILS_ENV=test rake test || true
-
       # static analysis initialization script
       - shell: |
-          cd /usr/src/app
-          gem install metric_fu
-          metric_fu -r --no-flog --no-flay --no-roodi --no-open || true
+          cd examples/ruby-test-repo
+          bundler install
+          COVERAGE=on ruby main.rb
 
       # sonar runner parameters, set sources and baseDir to project home
       # projectKey (string): SonarQube project identification key (unique)
       # projectName (string): SonarQube project name (NOT unique)
-      # projectVersion (string): Analyzed project version (unique)
+      # projectVersion (string): SonarQube project version (unique)
       # sources (string): source code home directory
       # projectBaseDir (string): project home directory (same as sources)
       # language (string): project language(ruby)
       # inclusions (string): file inclusion pattern
       # exclusions (string): file exclusion pattern
+      # login (string): SonarQube server user name
+      # password (string): SonarQube server user password
       - sonar:
           sonar-name: sonarqube_prod
           properties: |
             sonar.projectKey=$SONAR_KEY
             sonar.projectName=$SONAR_NAME
             sonar.projectVersion=$SONAR_PROJECT_VERSION
-            sonar.sources=/usr/src/app
-            sonar.projectBaseDir=/usr/src/app
+            sonar.sources=${WORKSPACE}/examples/ruby-test-repo
+            sonar.projectBaseDir=${WORKSPACE}/examples/ruby-test-repo
             sonar.language=ruby
             sonar.inclusions=**/*.rb
             sonar.exclusions=test/**/*.rb,db/**/*.rb
+            sonar.login=test
+            sonar.password=test
             sonar.ws.timeout=180
+```
+
+### Job DSL
+
+#### Example
+
+```Job DSL
+def jobName = 'ruby-coverage-dsl-sample'
+def giturl = 'https://github.com/RedHatQE/CodeQuality.git'
+def sonarProperties = '''
+    sonar.projectKey=sonarqube_ruby_analysis
+    sonar.projectName=Ruby Analysis
+    sonar.projectVersion=1.0
+    sonar.sources=${WORKSPACE}/examples/ruby-test-repo
+    sonar.projectBaseDir=${WORKSPACE}/examples/ruby-test-repo
+    sonar.language=ruby
+    sonar.inclusions=**/*.rb
+    sonar.exclusions=tests/**/*.rb
+    sonar.login=test
+    sonar.password=test
+    sonar.ws.timeout=180
+       '''.stripIndent()
+
+
+job(jobName) {
+    label('sonarqube-upshift')
+    scm {
+        git(giturl)
+    }
+    triggers {
+        cron '0 8 * * *'
+    }
+    steps {
+        shell '''
+           cd examples/ruby-test-repo
+           bundler install
+           COVERAGE=on ruby main.rb
+        '''
+    }
+    configure {
+        it / 'builders' << 'hudson.plugins.sonar.SonarRunnerBuilder' {
+            properties ("$sonarProperties")
+    }
+  }
+}
 ```
