@@ -1,0 +1,261 @@
+def cpp_task(){
+    // clone project
+    git url: 'https://github.com/RedHatQE/CodeQuality.git'
+    dir('examples/cpp-test-repo') {
+        // compile test files with coverage and mapping flags
+        sh 'g++ -g --coverage -lcppunit *.cpp -o testcpp'
+        
+        // generate runtime coverage metrics report
+        sh """
+            ./testcpp
+            gcov -o \$(pwd) -f \$(pwd)/main.cpp
+        """
+        // aggregate generated reports to xml report
+        sh 'gcovr -r $(pwd) -x --object-directory=$(pwd) > report.xml'
+    }
+    /*
+    sonar runner parameters, set sources and baseDir to project home
+    =======================
+    projectKey (string): SonarQube project identification key (unique)
+    projectName (string): SonarQube project name (NOT unique)
+    projectVersion (string): SonarQube project version (unique)
+    sources (string): source code home directory
+    projectBaseDir (string): project home directory (same as sources)
+    language (string): project language(cpp)
+    inclusions (string): file inclusion pattern
+    cxx.coverage.reportPath (string): xml coverage report path
+    login (string): SonarQube server user name
+    password (string): SonarQube server user password
+    */
+    writeFile file: "${pwd()}/sonar-project.properties", text: """
+        sonar.projectKey=test-files_1_0_cpp_full-analysis
+        sonar.projectName=CPP Testfiles
+        sonar.projectVersion=1.0
+        sonar.sources=${pwd()}/examples/cpp-test-repo
+        sonar.projectBaseDir=${pwd()}/examples/cpp-test-repo
+        sonar.language=c++
+        sonar.inclusions=**/*.cpp
+        sonar.cxx.coverage.reportPath=${pwd()}/examples/cpp-test-repo/report.xml
+        sonar.login=test
+        sonar.password=test
+        sonar.ws.timeout=180
+    """
+    // initite sonar scanner tool on project
+    // 'sonarqube_prod' is our cnfigured tool name, see yours
+    // in the Jenkins tool configuration
+    withSonarQubeEnv('sonarqube_prod') {
+        sh "${tool 'sonar-scanner-3.3'}/bin/sonar-scanner"
+    }
+}
+def go_task(){
+    // clone project and install dependencies
+    // run tests with coverage and export results to xml
+    sh """
+        mkdir -p gocode/src/github.com/
+        cd gocode/src/github.com/
+        export GOPATH=${WORKSPACE}/gocode/
+        export PATH="${WORKSPACE}/gocode/bin:$PATH"
+        go get github.com/axw/gocov/gocov
+        go get github.com/AlekSi/gocov-xml
+        git clone https://github.com/RedHatQE/CodeQuality.git
+        cd CodeQuality/examples/golang-test-repo/
+        go test -coverprofile=cover.out
+        gocov convert cover.out | gocov-xml > coverage.xml
+    """
+    /*
+    sonar runner parameters, set sources and baseDir to project home
+    ========================
+
+    projectKey (string): SonarQube project identification key (unique)
+    projectName (string): SonarQube project name (NOT unique)
+    projectVersion (string): SonarQube project version (unique)
+    sources (string): source code home directory
+    projectBaseDir (string): project home directory (same as sources)
+    python.coverage (string): relative xml coverage report path
+    language (string): project language(go)
+    inclusions (string): file inclusion pattern
+    exclusions (string): file exclusion pattern
+    login (string): SonarQube server user name
+    password (string): SonarQube server user password
+    */
+    writeFile file: "${pwd()}/sonar-project.properties", text: """
+        sonar.projectKey=test-files_1_0_golang_coverage_analysis
+        sonar.projectName=go-coverage
+        sonar.projectVersion=1.0
+        sonar.sources=${WORKSPACE}/gocode/src/github.com/CodeQuality/examples/golang-test-repo/
+        sonar.projectBaseDir=${WORKSPACE}/gocode/src/github.com/CodeQuality/examples/golang-test-repo/
+        sonar.go.coverage.reportPaths=cover.out
+        sonar.language=go
+        sonar.inclusions=**/*.go
+        sonar.exclusions=**/*_test.go
+        sonar.login=test
+        sonar.password=test
+        sonar.ws.timeout=180
+    """
+
+    // initite pre-configured sonar scanner tool on project
+    // 'soanrqube_prod' is our cnfigured tool name, see yours
+    // in the Jenkins tool configuration
+    withSonarQubeEnv('sonarqube_prod') {
+        sh "${tool 'sonar-scanner-3.3'}/bin/sonar-scanner"
+    }
+}
+def java_task(){
+    // clone project
+    git url: 'https://github.com/RedHatQE/CodeQuality.git'
+    // coverage tests initialization script
+    dir('examples/java-test-repo'){
+        sh '''mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent \
+        install -Dmaven.test.failure.ignore=true || true'''
+    }
+    // initite pre-configured sonar scanner tool on project
+    // 'sonarqube_prod' is our cnfigured tool name, see yours
+    // in the Jenkins tool configuration
+    // NOTE: pay attention we are using maven under sonar env
+    withSonarQubeEnv('sonarqube_prod') {
+        dir('examples/java-test-repo'){                                 
+            sh "mvn sonar:sonar"                                            
+        }    
+    }
+}
+def python_task(){
+    // clone project
+    git url: 'https://github.com/RedHatQE/CodeQuality.git'
+    dir('examples/python-test-repo') {
+    // run tests with coverage and export results to xml
+        sh """
+            coverage run --source . main.py
+            coverage xml
+        """ 
+    }
+    /*
+    sonar runner parameters, set sources and baseDir to project home
+    ========================
+
+    projectKey (string): SonarQube project identification key (unique)
+    projectName (string): SonarQube project name (NOT unique)
+    projectVersion (string): SonarQube project version (unique)
+    sources (string): source code home directory
+    projectBaseDir (string): project home directory (same as sources)
+    python.coverage (string): relative xml coverage report path
+    language (string): project language(py)
+    inclusions (string): file inclusion pattern
+    exclusions (string): file exclusion pattern
+    login (string): SonarQube server user name
+    password (string): SonarQube server user password
+    */
+    writeFile file: "${pwd()}/sonar-project.properties", text: """
+        sonar.projectKey=test-files_1_0_python_full-analysis
+        sonar.projectName=Python Testfiles
+        sonar.projectVersion=1.0
+        sonar.sources=${pwd()}/examples/python-test-repo
+        sonar.projectBaseDir=${pwd()}/examples/python-test-repo
+        sonar.python.coverage.reportPath=${pwd()}/examples/python-test-repo/coverage.xml
+        sonar.language=py
+        sonar.inclusions=**/*.py
+        sonar.exclusions=tests/**/*.py
+        sonar.login=test
+        sonar.password=test
+        sonar.ws.timeout=180
+    """
+
+    // initite pre-configured sonar scanner tool on project
+    // 'sonarqube_prod' is our cnfigured tool name, see yours
+    // in the Jenkins tool configuration
+    withSonarQubeEnv('sonarqube_prod') {
+        sh "${tool 'sonar-scanner-3.3'}/bin/sonar-scanner"
+    }
+}
+def ruby_task(){
+    // clone project
+    git url: 'https://github.com/RedHatQE/CodeQuality.git'
+
+    // install coverage dependencies from Gemfile
+    dir('examples/ruby-test-repo'){
+        sh 'bundler install'
+    }
+    dir('examples/ruby-test-repo'){
+        // run tests with coverage and export results to yml
+        sh 'COVERAGE=on ruby main.rb'
+    }
+    /*
+    sonar runner parameters, set sources and baseDir to project home
+    ========================
+
+    projectKey (string): SonarQube project identification key (unique)
+    projectName (string): SonarQube project name (NOT unique)
+    projectVersion (string): SonarQube project version (unique)
+    sources (string): source code home directory
+    projectBaseDir (string): project home directory (same as sources)
+    language (string): project language(ruby)
+    inclusions (string): file inclusion pattern
+    exclusions (string): file exclusion pattern
+    login (string): SonarQube server user name
+    password (string): SonarQube server user password
+    */
+    writeFile file: "${pwd()}/sonar-project.properties", text: """
+        sonar.projectKey=test-files_1_0_ruby_coverage
+        sonar.projectName=Ruby Testfiles
+        sonar.projectVersion=1.0
+        sonar.sources=${pwd()}/examples/ruby-test-repo
+        sonar.projectBaseDir=${pwd()}/examples/ruby-test-repo
+        sonar.language=ruby
+        sonar.inclusions=**/*.rb
+        sonar.exclusions=tests/**/*.rb
+        sonar.login=test
+        sonar.password=test
+        sonar.ws.timeout=180
+    """
+
+    // initite pre-configured sonar scanner tool on project
+    // 'sonarqube_prod' is our cnfigured tool name, see yours
+    // in the Jenkins tool configuration
+    withSonarQubeEnv('sonarqube_prod') {
+        sh "${tool 'sonar-scanner-3.3'}/bin/sonar-scanner"
+    }
+}
+
+pipeline {
+    agent none
+    options {
+      skipDefaultCheckout true
+    }
+    triggers {
+      cron('0 8 * * *')
+    }
+    stages {
+        stage('Run sonar-scanner in parallel'){
+            steps {
+                script {
+                    parallel(
+                        'Run C++': {
+                            node("sonarqube-upshift") {
+                                cpp_task()
+                            }
+                        }, 
+                        'Run Go': {
+                            node("sonarqube-upshift") {
+                                go_task()
+                            }
+                        },
+                        'Run Java': {
+                            node("sonarqube-upshift") {
+                                java_task()
+                            }
+                        },
+                        'Run Python': {
+                            node("sonarqube-upshift") {
+                                python_task()
+                            }
+                        },
+                        'Run Ruby': {
+                            node("sonarqube-upshift") {
+                                ruby_task()
+                            }
+                        }               
+                    )
+                }
+            }
+        }
+    }
+}
