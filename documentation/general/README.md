@@ -16,7 +16,7 @@ valid certification path to requested target".
 
 ## Solution
 
-Upgrade the sonarqube scanner Jnekins plugin from 2.8 to 2.9.
+Upgrade the sonarqube scanner Jenkins plugin from 2.8 to 2.9.
 
 Configure Jenkins in "Global Tools Configuration" to install from maven central
 the newest sonar-scanner version.
