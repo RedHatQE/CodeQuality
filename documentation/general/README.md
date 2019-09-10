@@ -24,8 +24,8 @@ the newest sonar-scanner version.
 
 Then you need to import the SonarQube certificate into the JVM that runs the
 SonarQube command.
-In order to import the RH certs to the JVM you just need to follow the
-instructions [here][2] in section 5.d and run the modify.sh script.
+In order to import certs to the JVM you just need to follow the
+instructions [here][2].
 
 The last part of the solution will be to tell sonar-scanner where is the
 correct cacerts path is:
@@ -57,4 +57,4 @@ add the following Java variables in the "Additional arguments" section.
 
 [1]: https://support.cloudbees.com/hc/en-us/articles/115001445548-How-to-Configure-SonarQube-plugin-for-HTTPS-Sonar-Server-  
 
-[2]: https://docs.engineering.redhat.com/pages/viewpage.action?pageId=63281222  
+[2]: https://connect2id.com/blog/importing-ca-root-cert-into-jvm-trust-store  
