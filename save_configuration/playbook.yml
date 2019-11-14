@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  vars_files:
+    - vars/external_vars.yml
+
+  vars_prompt:
+  - name: "sonar_username"
+    prompt: "Enter Sonar username"
+    private: no
+  - name: "sonar_password"
+    prompt: "Enter Sonar password"
+    private: yes
+  - name: "sonar_url"
+    prompt: "Enter sonar URL (E.g: http://localhost:9000)"
+    private: no
+
+  tasks:
+  - name: create conf file
+    file:
+      path: '{{ configuration_file }}'
+      state: touch
+
+  - name: clean file
+    shell: echo > '{{ configuration_file }}'
+
+  - name: get installed plugins list
+    include_tasks: installed_plugin_list.yml
+
+  - name: get users list
+    include_tasks: users_list.yml
+
+  - name: get projects list
+    include_tasks: projects_list.yml
+

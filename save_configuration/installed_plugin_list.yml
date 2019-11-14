@@ -1,0 +1,28 @@
+---
+- name: get installed plugin list
+  uri:
+    url: "{{ sonar_url }}/{{ installed_plugins_api }}"
+    user: '{{ sonar_username }}'
+    password: '{{ sonar_password  }}'
+    body_format: json
+    method: GET
+    status_code: 200
+    force_basic_auth: yes
+  register: response
+
+- name:  extract needed configuration
+  debug:
+    msg: 'key: {{ item.key }}, name: {{ item.name }}, version: {{ item.version }}, filename: {{ item.filename }}'
+  loop: "{{ response.json.plugins }}"
+  register: result
+
+- name: plugins topic
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '#################Installed Plugins#################'
+
+- name: write plugins configuration
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '{{ item.msg }}'
+  loop: "{{ result | json_query('results[*]') }}"
