@@ -11,9 +11,6 @@
   - name: "sonar_password"
     prompt: "Enter Sonar password"
     private: yes
-  - name: "sonar_url"
-    prompt: "Enter sonar URL (E.g: http://localhost:9000)"
-    private: no
 
   tasks:
   - name: create conf file
