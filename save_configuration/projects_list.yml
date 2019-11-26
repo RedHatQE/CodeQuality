@@ -1,0 +1,28 @@
+---
+- name: get projects list
+  uri:
+    url: "{{ sonar_url }}/{{ projects_list_api }}"
+    user: '{{ sonar_username }}'
+    password: '{{ sonar_password  }}'
+    body_format: json
+    method: GET
+    status_code: 200
+    force_basic_auth: yes
+  register: response
+
+- name:  extract needed configuration
+  debug:
+    msg: 'key: {{ item.key }}, name: {{ item.name }}'
+  loop: "{{ response.json.components }}"
+  register: result
+
+- name: projects topic
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '#################Sonar Projects#################'
+
+- name: write projects configuration
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '{{ item.msg }}'
+  loop: "{{ result | json_query('results[*]') }}"

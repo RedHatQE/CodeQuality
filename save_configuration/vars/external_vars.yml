@@ -1,0 +1,7 @@
+---
+installed_plugins_api: api/plugins/installed
+users_list_api: api/users/search
+projects_list_api: api/projects/search
+configuration_file: sonar_conf
+#Enter sonar URL (E.g: http://localhost:9000)
+sonar_url:
