@@ -1,7 +1,7 @@
 ---
-- name: get projects list
+- name: get groups list
   uri:
-    url: "{{ sonar_url }}/{{ projects_list_api }}"
+    url: "{{ sonar_url }}/{{ groups_list_api }}"
     user: '{{ sonar_username }}'
     password: '{{ sonar_password  }}'
     body_format: json
@@ -12,16 +12,16 @@
 
 - name:  extract needed configuration
   debug:
-    msg: 'project: {{ item.key }}, name: {{ item.name }}'
-  loop: "{{ response.json.components }}"
+    msg: 'group_name: {{ item.name }}'
+  loop: "{{ response.json.groups }}"
   register: result
 
-- name: projects topic
+- name: groups topic
   lineinfile:
     path: '{{ configuration_file }}'
-    line: '#################Sonar Projects#################'
+    line: '#################Sonar Groups#################'
 
-- name: write projects configuration
+- name: write groups configuration
   lineinfile:
     path: '{{ configuration_file }}'
     line: '{{ item.msg }}'
