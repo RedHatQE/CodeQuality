@@ -43,13 +43,13 @@
   loop: "{{ output.results }}"
   register: message
 
-- name: users and groups topic                                                             
-  lineinfile:                                                                   
-    path: '{{ configuration_file }}'                                            
+- name: users and groups topic
+  lineinfile:
+    path: '{{ configuration_file }}'
     line: '#################Sonar Users Groups#################'
 
-- name: write users groups configuration                                               
-  lineinfile:                                                                   
-    path: '{{ configuration_file }}'                                            
-    line: '{{ item.msg }}'                                                      
-  loop: "{{ message | json_query('results[*]') }}" 
+- name: write users groups configuration
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '{{ item.msg }}'
+  loop: "{{ message | json_query('results[*]') }}"
