@@ -10,7 +10,7 @@
     force_basic_auth: yes
   register: response
 
-- name:  extract needed configuration
+- name: create list of plugins
   debug:
     msg: 'plugin_key: {{ item.key }}, name: {{ item.name }}, version: {{ item.version }}, filename: {{ item.filename }}'
   loop: "{{ response.json.plugins }}"
