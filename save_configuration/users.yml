@@ -1,0 +1,55 @@
+---
+- name: get users list
+  uri:
+    url: "{{ sonar_url }}/{{ users_list_api }}"
+    user: '{{ sonar_username }}'
+    password: '{{ sonar_password  }}'
+    body_format: json
+    method: GET
+    status_code: 200
+    force_basic_auth: yes
+  register: response
+
+- name: create list of users
+  debug:
+    msg: 'login: {{ item.login }}, name: {{ item.name }}'
+  loop: "{{ response.json.users }}"
+  register: result
+
+- name: users topic
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '#################Sonar Users#################'
+
+- name: write users configuration
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '{{ item.msg }}'
+  loop: "{{ result | json_query('results[*]') }}"
+
+- name: get list of users groups
+  uri:
+    url: "{{ sonar_url }}/{{ user_groups_list_api }}?login={{ item.login }}"
+    user: '{{ sonar_username }}'
+    password: '{{ sonar_password  }}'
+    method: GET
+    force_basic_auth: yes
+  loop: "{{ response.json.users }}"
+  register: output
+
+- name: create a message that maps groups to users
+  debug:
+    msg: "{{ item._ansible_item_label.externalIdentity }} user is a member of the groups: {{ item._ansible_item_label.groups | to_json | replace('\"', '') | replace(']', '') | replace('[', '') }}"
+  loop: "{{ output.results }}"
+  register: message
+
+- name: users and groups topic
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '#################Sonar Users Groups#################'
+
+- name: write users groups configuration
+  lineinfile:
+    path: '{{ configuration_file }}'
+    line: '{{ item.msg }}'
+  loop: "{{ message | json_query('results[*]') }}"

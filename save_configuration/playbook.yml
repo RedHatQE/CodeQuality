@@ -21,12 +21,17 @@
   - name: clean file
     shell: echo > '{{ configuration_file }}'
 
-  - name: get installed plugins list
-    include_tasks: installed_plugin_list.yml
+  - name: get sonar version
+    include_tasks: server_version.yml
 
-  - name: get users list
-    include_tasks: users_list.yml
+  - name: get installed plugins list
+    include_tasks: installed_plugin.yml
 
   - name: get projects list
-    include_tasks: projects_list.yml
+    include_tasks: projects.yml
 
+  - name: get groups list
+    include_tasks: groups.yml
+
+  - name: get users list
+    include_tasks: users.yml

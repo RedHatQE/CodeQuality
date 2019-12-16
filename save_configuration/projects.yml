@@ -1,7 +1,7 @@
 ---
-- name: get users list
+- name: get projects list
   uri:
-    url: "{{ sonar_url }}/{{ users_list_api }}"
+    url: "{{ sonar_url }}/{{ projects_list_api }}"
     user: '{{ sonar_username }}'
     password: '{{ sonar_password  }}'
     body_format: json
@@ -10,18 +10,18 @@
     force_basic_auth: yes
   register: response
 
-- name:  extract needed configuration
+- name: create list of projects
   debug:
-    msg: 'login: {{ item.login }}, name: {{ item.name }}'
-  loop: "{{ response.json.users }}"
+    msg: 'project: {{ item.key }}, name: {{ item.name }}'
+  loop: "{{ response.json.components }}"
   register: result
 
-- name: users topic
+- name: projects topic
   lineinfile:
     path: '{{ configuration_file }}'
-    line: '#################Sonar Users#################'
+    line: '#################Sonar Projects#################'
 
-- name: write users configuration
+- name: write projects configuration
   lineinfile:
     path: '{{ configuration_file }}'
     line: '{{ item.msg }}'
