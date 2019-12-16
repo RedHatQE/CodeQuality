@@ -5,6 +5,7 @@
     user: '{{ sonar_username }}'
     password: '{{ sonar_password  }}'
     body_format: json
+    return_content: yes
     method: GET
     status_code: 200
     force_basic_auth: yes
@@ -18,4 +19,4 @@
 - name: write server version
   lineinfile:
     path: '{{ configuration_file }}'
-    line: "sonar_version: {{ response['sonar_version'] }}"
+    line: "sonar_version: {{ response.content }}"

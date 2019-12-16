@@ -4,7 +4,7 @@
 
 ```bash
 git clone https://github.com/RedHatQE/CodeQuality.git
-cd save_configuration/
+cd CodeQuality/save_configuration/
 ```
 Edit sonar_url variable in vars/external_vars.yml file with the sonar instance
 you want to inspect.
